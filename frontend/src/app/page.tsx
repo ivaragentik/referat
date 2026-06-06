@@ -124,12 +124,12 @@ export default function Home() {
       const result = await recoverMeeting(meetingId);
 
       if (result.success) {
-        toast.success('Meeting recovered successfully!', {
+        toast.success('Møtet ble gjenopprettet!', {
           description: result.audioRecoveryStatus?.status === 'success'
-            ? 'Transcripts and audio recovered'
-            : 'Transcripts recovered (no audio available)',
+            ? 'Transkripsjon og lyd gjenopprettet'
+            : 'Transkripsjon gjenopprettet (ingen lyd tilgjengelig)',
           action: result.meetingId ? {
-            label: 'View Meeting',
+            label: 'Vis møte',
             onClick: () => {
               router.push(`/meeting-details?id=${result.meetingId}`);
             }
@@ -153,8 +153,8 @@ export default function Home() {
         }
       }
     } catch (error) {
-      toast.error('Failed to recover meeting', {
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+      toast.error('Kunne ikke gjenopprette møtet', {
+        description: error instanceof Error ? error.message : 'En ukjent feil oppstod',
       });
       throw error;
     }

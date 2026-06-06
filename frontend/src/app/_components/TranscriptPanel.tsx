@@ -62,11 +62,11 @@ export function TranscriptPanel({
                     variant="outline"
                     size="sm"
                     onClick={copyTranscript}
-                    title="Copy Transcript"
+                    title="Kopier transkripsjon"
                   >
                     <Copy />
                     <span className='hidden md:inline'>
-                      Copy
+                      Kopier
                     </span>
                   </Button>
                 )}
@@ -75,11 +75,11 @@ export function TranscriptPanel({
                     variant="outline"
                     size="sm"
                     onClick={() => showModal('languageSettings')}
-                    title="Language"
+                    title="Språk"
                   >
                     <GlobeIcon />
                     <span className='hidden md:inline'>
-                      Language
+                      Språk
                     </span>
                   </Button>
                 }

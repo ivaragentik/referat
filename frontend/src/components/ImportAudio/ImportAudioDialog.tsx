@@ -95,7 +95,7 @@ export function ImportAudioDialog({
   } = useTranscriptionModels(transcriptModelConfig);
 
   const handleImportComplete = useCallback((result: ImportResult) => {
-    toast.success(`Import complete! ${result.segments_count} segments created.`);
+    toast.success(`Import fullført! ${result.segments_count} segmenter opprettet.`);
 
     // Refresh meetings list then navigate to the imported meeting
     refetchMeetings();
@@ -105,7 +105,7 @@ export function ImportAudioDialog({
   }, [router, refetchMeetings, onComplete, onOpenChange]);
 
   const handleImportError = useCallback((error: string) => {
-    toast.error('Import failed', { description: error });
+    toast.error('Import mislyktes', { description: error });
   }, []);
 
   const {
@@ -199,7 +199,7 @@ export function ImportAudioDialog({
   const handleCancel = async () => {
     if (isProcessing) {
       await cancelImport();
-      toast.info('Import cancelled');
+      toast.info('Import avbrutt');
     }
     onOpenChange(false);
   };
@@ -236,31 +236,31 @@ export function ImportAudioDialog({
             {isProcessing ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                Importing Audio...
+                Importerer lyd…
               </>
             ) : error ? (
               <>
                 <AlertCircle className="h-5 w-5 text-red-600" />
-                Import Failed
+                Import mislyktes
               </>
             ) : status === 'complete' ? (
               <>
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
-                Import Complete
+                Import fullført
               </>
             ) : (
               <>
                 <Upload className="h-5 w-5 text-blue-600" />
-                Import Audio File
+                Importer lydfil
               </>
             )}
           </DialogTitle>
           <DialogDescription>
             {isProcessing
-              ? progress?.message || 'Processing audio...'
+              ? progress?.message || 'Behandler lyd…'
               : error
-              ? 'An error occurred during import'
-              : 'Import an audio file to create a new meeting with transcripts'}
+              ? 'Det oppstod en feil under importen'
+              : 'Importer en lydfil for å opprette et nytt møte med transkripsjon'}
           </DialogDescription>
         </DialogHeader>
 
@@ -290,19 +290,19 @@ export function ImportAudioDialog({
 
                   {/* Editable title */}
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Meeting Title</label>
+                    <label className="text-sm font-medium text-gray-700">Møtetittel</label>
                     <Input
                       value={title}
                       onChange={(e) => {
                         setTitle(e.target.value);
                         setTitleModifiedByUser(true);
                       }}
-                      placeholder="Enter meeting title"
+                      placeholder="Skriv inn møtetittel"
                     />
                   </div>
 
                   <Button variant="outline" size="sm" onClick={handleSelectFile} className="w-full">
-                    Choose Different File
+                    Velg en annen fil
                   </Button>
                 </div>
               ) : (
@@ -312,16 +312,16 @@ export function ImportAudioDialog({
                     {status === 'validating' ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Validating...
+                        Validerer…
                       </>
                     ) : (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
-                        Select Audio File
+                        Velg lydfil
                       </>
                     )}
                   </Button>
-                  <p className="text-sm text-gray-500 mt-2">MP4, WAV, MP3, FLAC, OGG, MKV, WebM, WMA</p>
+                  <p className="text-sm text-gray-500 mt-2">Støttede formater: MP4, WAV, MP3, FLAC, OGG, MKV, WebM, WMA</p>
                 </div>
               )}
 
@@ -332,7 +332,7 @@ export function ImportAudioDialog({
                     onClick={() => setShowAdvanced(!showAdvanced)}
                     className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
-                    <span>Advanced Options</span>
+                    <span>Avanserte valg</span>
                     {showAdvanced ? (
                       <ChevronUp className="h-4 w-4" />
                     ) : (
@@ -347,11 +347,11 @@ export function ImportAudioDialog({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Globe className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Language</span>
+                            <span className="text-sm font-medium">Språk</span>
                           </div>
                           <Select value={selectedLang} onValueChange={setSelectedLang}>
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select language" />
+                              <SelectValue placeholder="Velg språk" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60">
                               {LANGUAGES.map((lang) => (
@@ -366,10 +366,10 @@ export function ImportAudioDialog({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Globe className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Language</span>
+                            <span className="text-sm font-medium">Språk</span>
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            Language selection isn't supported for Parakeet. It always uses automatic detection.
+                            Språkvalg støttes ikke for Parakeet. Den bruker alltid automatisk gjenkjenning.
                           </p>
                         </div>
                       )}
@@ -379,7 +379,7 @@ export function ImportAudioDialog({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Cpu className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Model</span>
+                            <span className="text-sm font-medium">Modell</span>
                           </div>
                           <Select
                             value={selectedModelKey}
@@ -387,7 +387,7 @@ export function ImportAudioDialog({
                             disabled={loadingModels}
                           >
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder={loadingModels ? 'Loading models...' : 'Select model'} />
+                              <SelectValue placeholder={loadingModels ? 'Laster modeller…' : 'Velg modell'} />
                             </SelectTrigger>
                             <SelectContent>
                               {availableModels.map((model) => (
@@ -440,7 +440,7 @@ export function ImportAudioDialog({
           {!isProcessing && !error && (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                Avbryt
               </Button>
               <Button
                 onClick={handleStartImport}
@@ -448,23 +448,23 @@ export function ImportAudioDialog({
                 disabled={!fileInfo}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Import
+                Importer
               </Button>
             </>
           )}
           {isProcessing && (
             <Button variant="outline" onClick={handleCancel}>
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              Avbryt
             </Button>
           )}
           {error && (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Close
+                Lukk
               </Button>
               <Button onClick={reset} variant="outline">
-                Try Again
+                Prøv igjen
               </Button>
             </>
           )}

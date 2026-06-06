@@ -30,12 +30,12 @@ export function SetupOverviewStep() {
     {
       number: 1,
       type: 'transcription',
-      title: 'Download Transcription Engine',
+      title: 'Last ned transkripsjonsmotoren',
     },
     {
       number: 2,
       type: 'summarization',
-      title: 'Download Summarization Engine',
+      title: 'Last ned sammendragsmotoren',
     },
   ];
 
@@ -45,8 +45,8 @@ export function SetupOverviewStep() {
 
   return (
     <OnboardingContainer
-      title="Setup Overview"
-      description="Knutsen Notes requires that you download the Transcription & Summarization AI models for the software to work."
+      title="Oppsettsoversikt"
+      description="Knutsen Notes krever at du laster ned transkripsjon- og sammendrag-AI-modellene for at appen skal fungere."
       step={2}
       totalSteps={isMac ? 4 : 3}
     >
@@ -73,8 +73,8 @@ export function SetupOverviewStep() {
                                 </button>
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-xs text-sm">
-                                You can also select external AI providers like OpenAI, Claude, or
-                                Ollama for summary generation in settings.
+                                Du kan også velge eksterne AI-leverandører som OpenAI, Claude eller
+                                Ollama for sammendragsgenerering i innstillinger.
                                 </TooltipContent>
                             </Tooltip>
                             </TooltipProvider>
@@ -94,7 +94,7 @@ export function SetupOverviewStep() {
             onClick={handleContinue}
             className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white"
           >
-            Let's Go
+            La oss begynne
           </Button>
           <div className="text-center">
             <a
@@ -103,7 +103,7 @@ export function SetupOverviewStep() {
               rel="noopener noreferrer"
               className="text-xs text-gray-600 hover:underline"
             >
-              Report issues on GitHub
+              Rapporter problemer på GitHub
             </a>
           </div>
         </div>

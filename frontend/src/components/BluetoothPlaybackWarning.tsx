@@ -72,13 +72,13 @@ export function BluetoothPlaybackWarning({
       <div className="flex items-start justify-between w-full">
         <div className="flex-1">
           <AlertTitle className="text-yellow-900 font-semibold">
-            Bluetooth Playback Detected
+            Bluetooth-avspilling oppdaget
           </AlertTitle>
           <AlertDescription className="text-yellow-800 mt-1">
-            You're using <strong>{deviceName}</strong> for playback.
-            Recordings may sound distorted or sped up through Bluetooth devices.
-            For accurate review, please use <strong>computer speakers</strong> or{' '}
-            <strong>wired headphones</strong>.
+            Du bruker <strong>{deviceName}</strong> for avspilling.
+            Opptak kan høres forvrengt eller for raskt ut gjennom Bluetooth-enheter.
+            For nøyaktig gjennomgang, bruk <strong>datamaskinens høyttalere</strong> eller{' '}
+            <strong>kablede hodetelefoner</strong>.
             <br />
             <a
               href="https://github.com/iaknutsen/knutsen-notes"
@@ -86,7 +86,7 @@ export function BluetoothPlaybackWarning({
               rel="noopener noreferrer"
               className="underline hover:text-yellow-900 font-medium mt-2 inline-block"
             >
-              Learn why this happens →
+              Les om hvorfor dette skjer →
             </a>
           </AlertDescription>
         </div>
@@ -95,7 +95,7 @@ export function BluetoothPlaybackWarning({
           size="icon"
           onClick={() => setIsDismissed(true)}
           className="ml-4 h-6 w-6 text-yellow-700 hover:text-yellow-900 hover:bg-yellow-100"
-          aria-label="Dismiss warning"
+          aria-label="Lukk advarsel"
         >
           <X className="h-4 w-4" />
         </Button>

@@ -56,9 +56,9 @@ export function WelcomeStep() {
             onClick={goNext}
             className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white"
           >
-            Get Started
+            Kom i gang
           </Button>
-          <p className="text-xs text-center text-gray-500">Takes less than 3 minutes</p>
+          <p className="text-xs text-center text-gray-500">Tar under 3 minutter</p>
         </div>
       </div>
     </OnboardingContainer>

@@ -90,8 +90,8 @@ export function SummaryGeneratorButtonGroup({
 
       // Check if specific model is configured
       if (!selectedModel) {
-        toast.error('No built-in AI model selected', {
-          description: 'Please select a model in settings',
+        toast.error('Ingen innebygd KI-modell valgt', {
+          description: 'Velg en modell i innstillingene',
           duration: 5000,
         });
         setSettingsDialogOpen(true);
@@ -128,16 +128,16 @@ export function SummaryGeneratorButtonGroup({
       const status = modelInfo.status;
 
       if (status.type === 'downloading') {
-        toast.info('Model download in progress', {
-          description: `${selectedModel} is downloading (${status.progress}%). Please wait until download completes.`,
+        toast.info('Modell lastes ned', {
+          description: `${selectedModel} lastes ned (${status.progress}%). Vent til nedlastingen er ferdig.`,
           duration: 5000,
         });
         return;
       }
 
       if (status.type === 'not_downloaded') {
-        toast.error('Model not downloaded', {
-          description: `${selectedModel} needs to be downloaded before use. Opening model settings...`,
+        toast.error('Modell ikke lastet ned', {
+          description: `${selectedModel} må lastes ned før bruk. Åpner modellinnstillinger…`,
           duration: 5000,
         });
         setSettingsDialogOpen(true);
@@ -145,8 +145,8 @@ export function SummaryGeneratorButtonGroup({
       }
 
       if (status.type === 'corrupted') {
-        toast.error('Model file corrupted', {
-          description: `${selectedModel} file is corrupted. Please delete and re-download.`,
+        toast.error('Modellfilen er ødelagt', {
+          description: `${selectedModel}-filen er ødelagt. Slett og last ned på nytt.`,
           duration: 7000,
         });
         setSettingsDialogOpen(true);
@@ -154,8 +154,8 @@ export function SummaryGeneratorButtonGroup({
       }
 
       if (status.type === 'error') {
-        toast.error('Model error', {
-          description: status.Error || 'An error occurred with the model',
+        toast.error('Modellfeil', {
+          description: status.Error || 'Det oppstod en feil med modellen',
           duration: 5000,
         });
         setSettingsDialogOpen(true);
@@ -163,15 +163,15 @@ export function SummaryGeneratorButtonGroup({
       }
 
       // Fallback
-      toast.error('Model not available', {
-        description: 'The selected model is not ready for use',
+      toast.error('Modell ikke tilgjengelig', {
+        description: 'Den valgte modellen er ikke klar til bruk',
         duration: 5000,
       });
       setSettingsDialogOpen(true);
 
     } catch (error) {
       console.error('Error checking built-in AI models:', error);
-      toast.error('Failed to check model status', {
+      toast.error('Kunne ikke sjekke modellstatus', {
         description: error instanceof Error ? error.message : String(error),
         duration: 5000,
       });
@@ -201,7 +201,7 @@ export function SummaryGeneratorButtonGroup({
       if (!models || models.length === 0) {
         // No models available, show message and open settings
         toast.error(
-          'No Ollama models found. Please download gemma2:2b from Model Settings.',
+          'Ingen Ollama-modeller funnet. Last ned gemma2:2b fra modellinnstillinger.',
           { duration: 5000 }
         );
         setSettingsDialogOpen(true);
@@ -217,12 +217,12 @@ export function SummaryGeneratorButtonGroup({
       if (isOllamaNotInstalledError(errorMessage)) {
         // Ollama is not installed - show specific message with download link
         toast.error(
-          'Ollama is not installed',
+          'Ollama er ikke installert',
           {
-            description: 'Please download and install Ollama to use local models.',
+            description: 'Last ned og installer Ollama for å bruke lokale modeller.',
             duration: 7000,
             action: {
-              label: 'Download',
+              label: 'Last ned',
               onClick: () => invoke('open_external_url', { url: 'https://ollama.com/download' })
             }
           }
@@ -230,7 +230,7 @@ export function SummaryGeneratorButtonGroup({
       } else {
         // Other error - generic message
         toast.error(
-          'Failed to check Ollama models. Please check if Ollama is running and download a model.',
+          'Kunne ikke sjekke Ollama-modeller. Kontroller at Ollama kjører og last ned en modell.',
           { duration: 5000 }
         );
       }
@@ -254,10 +254,10 @@ export function SummaryGeneratorButtonGroup({
             Analytics.trackButtonClick('stop_summary_generation', 'meeting_details');
             onStopGeneration();
           }}
-          title="Stop summary generation"
+          title="Stopp generering av sammendrag"
         >
           <Square className="xl:mr-2" size={18} fill="currentColor" />
-          <span className="hidden lg:inline xl:inline">Stop</span>
+          <span className="hidden lg:inline xl:inline">Stopp</span>
         </Button>
       ) : (
         <Button
@@ -271,21 +271,21 @@ export function SummaryGeneratorButtonGroup({
           disabled={isCheckingModels || isModelConfigLoading}
           title={
             isModelConfigLoading
-              ? 'Loading model configuration...'
+              ? 'Laster modellkonfigurasjon…'
               : isCheckingModels
-                ? 'Checking models...'
-                : hasSummary ? 'Regenerate AI Summary' : 'Generate AI Summary'
+                ? 'Sjekker modeller…'
+                : hasSummary ? 'Lag sammendrag på nytt' : 'Lag sammendrag'
           }
         >
           {isCheckingModels || isModelConfigLoading ? (
             <>
               <Loader2 className="animate-spin xl:mr-2" size={18} />
-              <span className="hidden xl:inline">Processing...</span>
+              <span className="hidden xl:inline">Behandler…</span>
             </>
           ) : (
             <>
               <Sparkles className="xl:mr-2" size={18} />
-              <span className="hidden lg:inline xl:inline">{hasSummary ? 'Regenerate Summary' : 'Generate Summary'}</span>
+              <span className="hidden lg:inline xl:inline">{hasSummary ? 'Lag sammendrag på nytt' : 'Lag sammendrag'}</span>
             </>
           )}
         </Button>
@@ -299,10 +299,10 @@ export function SummaryGeneratorButtonGroup({
           <Button
             variant="outline"
             size="sm"
-            title="Summary Settings"
+            title="Sammendragsinnstillinger"
           >
             <Settings />
-            <span className="hidden lg:inline">AI Model</span>
+            <span className="hidden lg:inline">KI-modell</span>
           </Button>
         </DialogTrigger>
         <DialogContent
@@ -331,10 +331,10 @@ export function SummaryGeneratorButtonGroup({
             <Button
               variant="outline"
               size="sm"
-              title="Select summary template"
+              title="Velg mal for sammendrag"
             >
               <FileText />
-              <span className="hidden lg:inline">Template</span>
+              <span className="hidden lg:inline">Mal</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
