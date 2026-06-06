@@ -51,7 +51,8 @@ const env = { ...process.env };
   // C/C++/ObjC sources (whisper.cpp/ggml via whisper-rs-sys) embed __FILE__
   // paths the Rust flag can't touch — remap those for the C toolchain too.
   const cRemap = `-ffile-prefix-map=${home}=/build`;
-  for (const v of ['CFLAGS', 'CXXFLAGS', 'OBJCFLAGS', 'OBJCXXFLAGS']) {
+  for (const v of ['CFLAGS', 'CXXFLAGS', 'OBJCFLAGS', 'OBJCXXFLAGS',
+                   'CMAKE_C_FLAGS', 'CMAKE_CXX_FLAGS']) {
     env[v] = env[v] ? `${env[v]} ${cRemap}` : cRemap;
   }
 }

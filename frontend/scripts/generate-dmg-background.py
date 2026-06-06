@@ -16,7 +16,7 @@ def font(size, idx=1):
     return ImageFont.truetype("/System/Library/Fonts/HelveticaNeue.ttc", size * S, index=idx)
 
 
-# Brand lockup: mark + REFERAT + «av agentik» (mirrors the official logo)
+# Brand lockup: mark + REFERAT + «av Agentik» (mirrors the official logo)
 import importlib.util as _ilu
 import os as _os
 
@@ -34,7 +34,7 @@ f_title = font(32)
 tw = d.textlength(title, font=f_title)
 d.text(((W * S - tw) / 2, 80 * S), title, font=f_title, fill=NAVY)
 
-by = "av agentik"
+by = "av Agentik"
 f_by = font(16)
 tw_by = d.textlength(by, font=f_by)
 d.text(((W * S - tw_by) / 2, 122 * S), by, font=f_by, fill=NAVY)
