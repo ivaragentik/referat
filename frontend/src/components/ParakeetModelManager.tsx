@@ -58,7 +58,7 @@ export function ParakeetModelManager({
         setInitialized(true);
       } catch (err) {
         console.error('Failed to initialize Parakeet:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load models');
+        setError(err instanceof Error ? err.message : 'Kunne ikke laste modeller');
         toast.error('Kunne ikke laste transkripsjonmodeller', {
           description: err instanceof Error ? err.message : 'Ukjent feil',
           duration: 5000

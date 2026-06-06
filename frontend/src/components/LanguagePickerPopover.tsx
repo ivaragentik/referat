@@ -83,7 +83,7 @@ export function LanguagePickerPopover({
       ref={containerRef}
       className="w-72 rounded-lg bg-white border border-gray-200 shadow-lg overflow-hidden"
       role="dialog"
-      aria-label="Pick summary language"
+      aria-label="Velg sammendragsspråk"
     >
       <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
         <span className="text-gray-400 text-sm">🔍</span>
@@ -92,7 +92,7 @@ export function LanguagePickerPopover({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search language..."
+          placeholder="Søk etter språk…"
           className="flex-1 text-sm text-gray-900 bg-transparent border-none outline-none placeholder-gray-400"
         />
       </div>
@@ -145,7 +145,7 @@ export function LanguagePickerPopover({
 
         {filteredAll.length > 0 && (
           <div className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-            {mode === "meeting" ? "Other Languages" : "All Languages"}
+            {mode === "meeting" ? "Andre språk" : "Alle språk"}
           </div>
         )}
 

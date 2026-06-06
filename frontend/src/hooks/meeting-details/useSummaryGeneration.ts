@@ -22,8 +22,8 @@ async function resolveSummaryLanguage(
     if (perMeeting.language) return perMeeting.language;
   } catch (err) {
     console.warn('Failed to load meeting summary language:', err);
-    toast.warning('Could not load saved summary language', {
-      description: 'Using Auto for this generation.',
+    toast.warning('Kunne ikke laste lagret sammendragsspråk', {
+      description: 'Bruker Auto for denne genereringen.',
     });
   }
 
@@ -37,8 +37,8 @@ async function resolveSummaryLanguage(
   try {
     const detection = await detectAndCacheSummaryLanguage(meetingId, transcriptTexts);
     if (detection.reason === 'tie') {
-      toast.warning('Bilingual transcript detected', {
-        description: 'Pick a summary language manually if Auto chooses the wrong fallback.',
+      toast.warning('Tospråklig transkripsjon oppdaget', {
+        description: 'Velg sammendragsspråk manuelt hvis Auto velger feil.',
       });
     }
     return detection.language;
@@ -135,8 +135,8 @@ export function useSummaryGeneration({
       }
 
       // Show toast notification for generation start
-      toast.info(`${isRegeneration ? 'Regenerating' : 'Generating'} summary...`, {
-        description: `Using ${modelConfig.provider}/${modelConfig.model}`,
+      toast.info(`${isRegeneration ? 'Genererer på nytt' : 'Genererer'} sammendrag…`, {
+        description: `Bruker ${modelConfig.provider}/${modelConfig.model}`,
         duration: 3000,
       });
 
@@ -278,8 +278,8 @@ export function useSummaryGeneration({
             setSummaryStatus('completed');
 
             // Show success toast
-            toast.success('Summary generated successfully!', {
-              description: 'Your meeting summary is ready',
+            toast.success('Sammendrag generert!', {
+              description: 'Møtesammendraget ditt er klart',
               duration: 4000,
             });
 
@@ -352,8 +352,8 @@ export function useSummaryGeneration({
           setSummaryStatus('completed');
 
           // Show success toast
-          toast.success('Summary generated successfully!', {
-            description: 'Your meeting summary is ready',
+          toast.success('Sammendrag generert!', {
+            description: 'Møtesammendraget ditt er klart',
             duration: 4000,
           });
 
@@ -370,12 +370,12 @@ export function useSummaryGeneration({
       });
     } catch (error) {
       console.error(`Failed to ${isRegeneration ? 'regenerate' : 'generate'} summary:`, error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Ukjent feil';
       setSummaryError(errorMessage);
       setSummaryStatus('error');
       // Note: We don't clear the summary here because the backend has already restored from backup
 
-      toast.error(`Failed to ${isRegeneration ? 'regenerate' : 'generate'} summary`, {
+      toast.error(`Kunne ikke ${isRegeneration ? 'generere på nytt' : 'generere'} sammendrag`, {
         description: errorMessage,
       });
 
@@ -428,7 +428,7 @@ export function useSummaryGeneration({
       return allData.transcripts;
     } catch (error) {
       console.error('❌ Error fetching all transcripts:', error);
-      toast.error('Failed to fetch transcripts for summary generation');
+      toast.error('Kunne ikke hente transkripsjoner for sammendragsgenerering');
       return [];
     }
   }, []);
@@ -457,7 +457,7 @@ export function useSummaryGeneration({
     // Check if model config is still loading
     if (isModelConfigLoading) {
       console.log('⏳ Model configuration is still loading, please wait...');
-      toast.info('Loading model configuration, please wait...');
+      toast.info('Laster modellkonfigurasjon, vent litt…');
       return;
     }
 
@@ -466,7 +466,7 @@ export function useSummaryGeneration({
     const allTranscripts = await fetchAllTranscripts(meeting.id);
 
     if (!allTranscripts.length) {
-      const error_msg = 'No transcripts available for summary';
+      const error_msg = 'Ingen transkripsjoner tilgjengelig for sammendrag';
       console.log(error_msg);
       toast.error(error_msg);
       return;
@@ -488,7 +488,7 @@ export function useSummaryGeneration({
 
         if (!models || models.length === 0) {
           toast.error(
-            'No Ollama models found. Please download gemma3:1b from Model Settings.',
+            'Ingen Ollama-modeller funnet. Last ned gemma3:1b fra modellinnstillinger.',
             { duration: 5000 }
           );
           return;
@@ -500,12 +500,12 @@ export function useSummaryGeneration({
         if (isOllamaNotInstalledError(errorMessage)) {
           // Ollama is not installed - show specific message with download link
           toast.error(
-            'Ollama is not installed',
+            'Ollama er ikke installert',
             {
-              description: 'Please download and install Ollama to use local models.',
+              description: 'Last ned og installer Ollama for å bruke lokale modeller.',
               duration: 7000,
               action: {
-                label: 'Download',
+                label: 'Last ned',
                 onClick: () => invokeTauri('open_external_url', { url: 'https://ollama.com/download' })
               }
             }
@@ -513,7 +513,7 @@ export function useSummaryGeneration({
         } else {
           // Other error - generic message
           toast.error(
-            'Failed to check Ollama models. Please ensure Ollama is running and download a model from Settings.',
+            'Kunne ikke sjekke Ollama-modeller. Sørg for at Ollama kjører og last ned en modell fra innstillinger.',
             { duration: 5000 }
           );
         }
@@ -527,8 +527,8 @@ export function useSummaryGeneration({
         const selectedModel = modelConfig.model;
 
         if (!selectedModel) {
-          toast.error('No built-in AI model selected', {
-            description: 'Please select a model in settings',
+          toast.error('Ingen innebygd AI-modell valgt', {
+            description: 'Velg en modell i innstillinger',
             duration: 5000,
           });
           if (onOpenModelSettings) {
@@ -553,16 +553,16 @@ export function useSummaryGeneration({
             const status = modelInfo.status;
 
             if (status.type === 'downloading') {
-              toast.info('Model download in progress', {
-                description: `${selectedModel} is downloading (${status.progress}%). Please wait until download completes.`,
+              toast.info('Modellnedlasting pågår', {
+                description: `${selectedModel} lastes ned (${status.progress}%). Vent til nedlastingen er ferdig.`,
                 duration: 5000,
               });
               return;
             }
 
             if (status.type === 'not_downloaded') {
-              toast.error('Built-in AI model not downloaded', {
-                description: `${selectedModel} needs to be downloaded. Please download it in model settings.`,
+              toast.error('Innebygd AI-modell ikke lastet ned', {
+                description: `${selectedModel} må lastes ned. Last den ned i modellinnstillinger.`,
                 duration: 7000,
               });
               if (onOpenModelSettings) {
@@ -575,8 +575,8 @@ export function useSummaryGeneration({
               const errorDesc = status.type === 'error'
                 ? status.Error || 'The model file has an error'
                 : 'The model file is corrupted';
-              toast.error('Built-in AI model not available', {
-                description: `${errorDesc}. Please check model settings.`,
+              toast.error('Innebygd AI-modell ikke tilgjengelig', {
+                description: `${errorDesc}. Sjekk modellinnstillinger.`,
                 duration: 7000,
               });
               if (onOpenModelSettings) {
@@ -587,8 +587,8 @@ export function useSummaryGeneration({
           }
 
           // Fallback if we couldn't get model info
-          toast.error('Built-in AI model not ready', {
-            description: 'Please ensure the model is downloaded in settings',
+          toast.error('Innebygd AI-modell ikke klar', {
+            description: 'Sørg for at modellen er lastet ned i innstillinger',
             duration: 5000,
           });
           if (onOpenModelSettings) {
@@ -600,7 +600,7 @@ export function useSummaryGeneration({
         // Model is ready, continue to backend call
       } catch (error) {
         console.error('Error validating built-in AI model:', error);
-        toast.error('Failed to validate built-in AI model', {
+        toast.error('Kunne ikke validere innebygd AI-modell', {
           description: error instanceof Error ? error.message : String(error),
           duration: 5000,
         });
@@ -622,7 +622,7 @@ export function useSummaryGeneration({
 
     if (!allTranscripts.length) {
       console.error('No transcripts available for regeneration');
-      toast.error('No transcripts available for summary regeneration');
+      toast.error('Ingen transkripsjoner tilgjengelig for ny sammendragsgenerering');
       return;
     }
 
@@ -655,8 +655,8 @@ export function useSummaryGeneration({
     setSummaryError(null);
 
     // Show toast notification
-    toast.info('Summary generation stopped', {
-      description: 'You can generate a new summary anytime',
+    toast.info('Sammendragsgenerering stoppet', {
+      description: 'Du kan generere et nytt sammendrag når som helst',
       duration: 3000,
     });
   }, [meeting.id, stopSummaryPolling]);

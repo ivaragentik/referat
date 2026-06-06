@@ -45,7 +45,7 @@ export function AudioBackendSelector({
         }
       } catch (err) {
         console.error('Failed to load audio backends:', err);
-        setError('Failed to load backend options');
+        setError('Kunne ikke laste lydbackend-alternativer');
       } finally {
         setLoading(false);
       }
@@ -69,7 +69,7 @@ export function AudioBackendSelector({
       console.log(`Audio backend changed to: ${backendId}`);
     } catch (err) {
       console.error('Failed to set audio backend:', err);
-      setError('Failed to change backend. Please try again.');
+      setError('Kunne ikke endre backend. Prøv igjen.');
     }
   };
 

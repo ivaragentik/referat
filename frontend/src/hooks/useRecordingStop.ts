@@ -270,8 +270,8 @@ export function useRecordingStop(
             shouldDetectSummaryLanguage = !(await applyPinnedSummaryLanguageToMeeting(meetingId));
           } catch (error) {
             console.warn('Failed to apply pinned summary language preference for new meeting:', error);
-            toast.warning('Could not apply default summary language', {
-              description: 'The meeting was saved, but the default summary language was not applied.',
+            toast.warning('Kunne ikke bruke standard sammendragsspråk', {
+              description: 'Møtet ble lagret, men standard sammendragsspråk ble ikke brukt.',
             });
           }
 
@@ -283,8 +283,8 @@ export function useRecordingStop(
               );
             } catch (error) {
               console.warn('Failed to detect summary language for new meeting:', error);
-              toast.warning('Could not detect summary language', {
-                description: 'The meeting was saved, but Auto could not detect the summary language.',
+              toast.warning('Kunne ikke oppdage sammendragsspråk', {
+                description: 'Møtet ble lagret, men Auto kunne ikke oppdage sammendragsspråket.',
               });
             }
           }
@@ -316,17 +316,17 @@ export function useRecordingStop(
             }
           } catch (error) {
             console.warn('Could not fetch meeting details, using ID only:', error);
-            setCurrentMeeting({ id: meetingId, title: savedMeetingName || meetingTitle || 'New Meeting' });
+            setCurrentMeeting({ id: meetingId, title: savedMeetingName || meetingTitle || 'Nytt møte' });
           }
 
           // Mark as completed
           setStatus(RecordingStatus.COMPLETED);
 
           // Show success toast with navigation option
-          toast.success('Recording saved successfully!', {
-            description: `${freshTranscripts.length} transcript segments saved.`,
+          toast.success('Opptak lagret!', {
+            description: `${freshTranscripts.length} transkripsjonsegmenter lagret.`,
             action: {
-              label: 'View Meeting',
+              label: 'Se møte',
               onClick: () => {
                 router.push(`/meeting-details?id=${meetingId}`);
                 Analytics.trackButtonClick('view_meeting_from_toast', 'recording_complete');
@@ -398,8 +398,8 @@ export function useRecordingStop(
         } catch (saveError) {
           console.error('Failed to save meeting to database:', saveError);
           setStatus(RecordingStatus.ERROR, saveError instanceof Error ? saveError.message : 'Unknown error');
-          toast.error('Failed to save meeting', {
-            description: saveError instanceof Error ? saveError.message : 'Unknown error'
+          toast.error('Kunne ikke lagre møtet', {
+            description: saveError instanceof Error ? saveError.message : 'Ukjent feil'
           });
           throw saveError;
         }

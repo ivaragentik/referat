@@ -188,8 +188,8 @@ export function useTranscriptRecovery(): UseTranscriptRecoveryReturn {
         await applyPinnedSummaryLanguageToMeeting(savedMeetingId);
       } catch (error) {
         console.warn('Failed to apply pinned summary language to recovered meeting:', error);
-        toast.warning('Could not apply default summary language', {
-          description: 'The recovered meeting was saved, but the default summary language was not applied.',
+        toast.warning('Kunne ikke bruke standard sammendragsspråk', {
+          description: 'Det gjenopprettede møtet ble lagret, men standard sammendragsspråk ble ikke brukt.',
         });
       }
 

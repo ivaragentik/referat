@@ -155,12 +155,12 @@ export function LanguageSelection({
 
       // Show success toast
       const languageName = selectedLang?.name || languageCode;
-      toast.success("Language preference saved", {
-        description: `Transcription language set to ${languageName}`
+      toast.success("Språkpreferanse lagret", {
+        description: `Transkripsjonsspråk satt til ${languageName}`
       });
     } catch (error) {
       console.error('Failed to save language preference:', error);
-      toast.error("Failed to save language preference", {
+      toast.error("Kunne ikke lagre språkpreferanse", {
         description: error instanceof Error ? error.message : String(error)
       });
     } finally {
@@ -171,14 +171,14 @@ export function LanguageSelection({
   // Find the selected language name for display
   const selectedLanguageName = LANGUAGES.find(
     lang => lang.code === selectedLanguage
-  )?.name || 'Auto Detect (Original Language)';
+  )?.name || 'Automatisk gjenkjenning (originalspråk)';
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Globe className="h-4 w-4 text-gray-600" />
-          <h4 className="text-sm font-medium text-gray-900">Transcription Language</h4>
+          <h4 className="text-sm font-medium text-gray-900">Transkripsjonsspråk</h4>
         </div>
       </div>
 

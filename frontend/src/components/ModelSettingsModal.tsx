@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { RefreshCw, CheckCircle2, XCircle, ChevronDown, ChevronUp, Download, ExternalLink, Check, ChevronsUpDown } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw, CheckCircle2, XCircle, ChevronDown, ChevronUp, Download, ExternalLink, Check, ChevronsUpDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -29,12 +29,11 @@ import {
 import { cn, isOllamaNotInstalledError } from '@/lib/utils';
 import { toast } from 'sonner';
 
-// Free/local providers supported in this fork. Other provider values kept for
-// type compatibility with configService.ts (backend may return them on first launch).
-export type SupportedProvider = 'ollama' | 'builtin-ai';
+// Providers supported in this fork.
+export type SupportedProvider = 'ollama' | 'builtin-ai' | 'openai' | 'claude';
 
 export interface ModelConfig {
-  provider: SupportedProvider | 'groq' | 'claude' | 'openrouter' | 'openai' | 'custom-openai';
+  provider: SupportedProvider | 'groq' | 'openrouter' | 'custom-openai';
   model: string;
   whisperModel: string;
   apiKey?: string | null;
@@ -55,7 +54,35 @@ interface OllamaModel {
   modified: string;
 }
 
-// (Cloud provider interfaces removed — only builtin-ai and ollama are supported in this fork)
+interface OpenAIModel {
+  id: string;
+}
+
+interface AnthropicModel {
+  id: string;
+  display_name?: string;
+}
+
+// Fallback model lists — used when API fetch fails or no key yet provided
+const OPENAI_FALLBACK_MODELS = [
+  'gpt-4o',
+  'gpt-4o-mini',
+  'gpt-4-turbo',
+  'gpt-4',
+  'gpt-3.5-turbo',
+  'o1',
+  'o1-mini',
+  'o3',
+  'o3-mini',
+];
+
+// Updated to current Anthropic model IDs (as of 2026-06)
+const CLAUDE_FALLBACK_MODELS = [
+  'claude-opus-4-8',
+  'claude-sonnet-4-6',
+  'claude-haiku-4-5',
+  'claude-3-5-sonnet-latest',
+];
 
 interface ModelSettingsModalProps {
   modelConfig: ModelConfig;
@@ -76,9 +103,18 @@ export function ModelSettingsModal({
   const configContext = useConfig();
   const modelConfig = configContext?.modelConfig || propsModelConfig;
   const setModelConfig = configContext?.setModelConfig || propsSetModelConfig;
+  const providerApiKeys = configContext?.providerApiKeys;
+  const updateProviderApiKey = configContext?.updateProviderApiKey;
 
   const [models, setModels] = useState<OllamaModel[]>([]);
   const [error, setError] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string | null>(modelConfig.apiKey || null);
+  const [showApiKey, setShowApiKey] = useState<boolean>(false);
+  // Dynamic model lists for cloud providers
+  const [openaiModels, setOpenaiModels] = useState<string[]>([]);
+  const [claudeModels, setClaudeModels] = useState<string[]>([]);
+  const [isLoadingOpenAI, setIsLoadingOpenAI] = useState<boolean>(false);
+  const [isLoadingClaude, setIsLoadingClaude] = useState<boolean>(false);
   const { serverAddress } = useSidebar();
   const [ollamaEndpoint, setOllamaEndpoint] = useState<string>(modelConfig.ollamaEndpoint || '');
   const [isLoadingOllama, setIsLoadingOllama] = useState<boolean>(false);
@@ -132,19 +168,30 @@ export function ModelSettingsModal({
     return () => clearTimeout(timer);
   }, [ollamaEndpoint]);
 
-  // (API key handling removed — only free/local providers are supported in this fork)
+  // Auto-unlock when API key becomes empty
+  useEffect(() => {
+    // nothing to unlock here, just track changes
+  }, [apiKey]);
 
   const modelOptions: Record<string, string[]> = {
     ollama: models.map((model) => model.name),
     'builtin-ai': builtinAiModels.map((m) => m.name),
+    openai: openaiModels.length > 0 ? openaiModels : OPENAI_FALLBACK_MODELS,
+    claude: claudeModels.length > 0 ? claudeModels : CLAUDE_FALLBACK_MODELS,
   };
+
+  // True for providers that require a user-supplied API key
+  const requiresApiKey =
+    modelConfig.provider === 'openai' ||
+    modelConfig.provider === 'claude';
 
   // Check if Ollama endpoint has changed but models haven't been fetched yet
   const ollamaEndpointChanged = modelConfig.provider === 'ollama' &&
     ollamaEndpoint.trim() !== lastFetchedEndpoint.trim();
 
   const isDoneDisabled =
-    (modelConfig.provider === 'ollama' && ollamaEndpointChanged);
+    (modelConfig.provider === 'ollama' && ollamaEndpointChanged) ||
+    (requiresApiKey && (!apiKey || !apiKey.trim()));
 
   useEffect(() => {
     const fetchModelConfig = async () => {
@@ -237,8 +284,6 @@ export function ModelSettingsModal({
       }
     }
   }, [ollamaEndpoint, lastFetchedEndpoint, modelConfig.provider]);
-
-  // (Provider API key sync removed — no API key providers in this fork)
 
   // Manual fetch function for Ollama models
   const fetchOllamaModels = async (silent = false) => {
@@ -333,7 +378,65 @@ export function ModelSettingsModal({
     }
   };
 
-  // (Cloud model loading functions removed — only builtin-ai and ollama are supported in this fork)
+  // Fetch OpenAI models from API
+  const loadOpenAIModels = async (key: string | null) => {
+    if (!key?.trim()) {
+      setOpenaiModels([]); // Will use fallback via modelOptions
+      return;
+    }
+    setIsLoadingOpenAI(true);
+    try {
+      const data = (await invoke('get_openai_models', { apiKey: key })) as OpenAIModel[];
+      setOpenaiModels(data.map((m) => m.id));
+    } catch (err) {
+      console.error('Error loading OpenAI models:', err);
+      setOpenaiModels([]); // Will use fallback via modelOptions
+    } finally {
+      setIsLoadingOpenAI(false);
+    }
+  };
+
+  // Fetch Anthropic (Claude) models from API
+  const loadClaudeModels = async (key: string | null) => {
+    if (!key?.trim()) {
+      setClaudeModels([]); // Will use fallback via modelOptions
+      return;
+    }
+    setIsLoadingClaude(true);
+    try {
+      const data = (await invoke('get_anthropic_models', { apiKey: key })) as AnthropicModel[];
+      setClaudeModels(data.map((m) => m.id));
+    } catch (err) {
+      console.error('Error loading Claude models:', err);
+      setClaudeModels([]); // Will use fallback via modelOptions
+    } finally {
+      setIsLoadingClaude(false);
+    }
+  };
+
+  // Auto-fetch OpenAI models when provider is openai and we have an API key
+  useEffect(() => {
+    if (modelConfig.provider === 'openai' && apiKey?.trim()) {
+      loadOpenAIModels(apiKey);
+    }
+  }, [modelConfig.provider, apiKey]);
+
+  // Auto-fetch Claude models when provider is claude and we have an API key
+  useEffect(() => {
+    if (modelConfig.provider === 'claude' && apiKey?.trim()) {
+      loadClaudeModels(apiKey);
+    }
+  }, [modelConfig.provider, apiKey]);
+
+  // Sync local apiKey state when provider changes (restore from context)
+  useEffect(() => {
+    if (providerApiKeys && requiresApiKey) {
+      const correctKey = providerApiKeys[modelConfig.provider as keyof typeof providerApiKeys];
+      if (correctKey !== apiKey) {
+        setApiKey(correctKey || '');
+      }
+    }
+  }, [modelConfig.provider, providerApiKeys, requiresApiKey]);
 
   // Restore cached model when async model lists become available
   useEffect(() => {
@@ -349,12 +452,12 @@ export function ModelSettingsModal({
     if (cachedModel && providerModels.includes(cachedModel)) {
       setModelConfig((prev: ModelConfig) => ({ ...prev, model: cachedModel }));
     }
-  }, [models, builtinAiModels, modelConfig.provider]);
+  }, [models, builtinAiModels, openaiModels, claudeModels, modelConfig.provider]);
 
   const handleSave = async () => {
     const updatedConfig = {
       ...modelConfig,
-      apiKey: null,
+      apiKey: requiresApiKey ? (typeof apiKey === 'string' ? apiKey.trim() || null : null) : null,
       ollamaEndpoint: modelConfig.provider === 'ollama'
         ? (ollamaEndpoint.trim() || null)
         : (modelConfig.ollamaEndpoint || null),
@@ -367,6 +470,11 @@ export function ModelSettingsModal({
       const map = JSON.parse(localStorage.getItem('providerModelMap') || '{}');
       map[updatedConfig.provider] = updatedConfig.model;
       localStorage.setItem('providerModelMap', JSON.stringify(map));
+    }
+
+    // Update provider-specific key in context
+    if (updateProviderApiKey && updatedConfig.apiKey && requiresApiKey) {
+      updateProviderApiKey(updatedConfig.provider, updatedConfig.apiKey);
     }
 
     onSave(updatedConfig);
@@ -522,14 +630,26 @@ export function ModelSettingsModal({
                 if (provider === 'builtin-ai') {
                   loadBuiltinAiModels();
                 }
+
+                // Load cloud models when selected if we already have an API key
+                if (provider === 'openai') {
+                  const key = providerApiKeys?.openai;
+                  if (key) loadOpenAIModels(key);
+                }
+                if (provider === 'claude') {
+                  const key = providerApiKeys?.claude;
+                  if (key) loadClaudeModels(key);
+                }
               }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Velg leverandør" />
               </SelectTrigger>
               <SelectContent className="max-h-64 overflow-y-auto">
-                <SelectItem value="builtin-ai">Innebygd KI (helt lokalt, ingen oppsett)</SelectItem>
-                <SelectItem value="ollama">Ollama</SelectItem>
+                <SelectItem value="builtin-ai">Innebygd KI (gratis, helt lokalt)</SelectItem>
+                <SelectItem value="ollama">Ollama (avansert, lokalt)</SelectItem>
+                <SelectItem value="openai">OpenAI (egen API-nøkkel)</SelectItem>
+                <SelectItem value="claude">Claude (egen API-nøkkel)</SelectItem>
               </SelectContent>
             </Select>
 
@@ -552,7 +672,8 @@ export function ModelSettingsModal({
                   <Command>
                     <CommandInput placeholder="Søk modeller..." />
                     <CommandList className="max-h-[300px]">
-                      {false ? (
+                      {(modelConfig.provider === 'openai' && isLoadingOpenAI) ||
+                       (modelConfig.provider === 'claude' && isLoadingClaude) ? (
                         <div className="py-6 text-center text-sm text-muted-foreground">
                           <RefreshCw className="mx-auto h-4 w-4 animate-spin mb-2" />
                           Laster modeller...
@@ -590,7 +711,33 @@ export function ModelSettingsModal({
           </div>
         </div>
 
-        {/* (Custom OpenAI and API key sections removed — cloud providers not supported in this fork) */}
+        {/* API-nøkkel for sky-leverandører */}
+        {requiresApiKey && (
+          <div>
+            <Label htmlFor="api-key-input">API-nøkkel</Label>
+            <div className="relative mt-1">
+              <input
+                id="api-key-input"
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKey || ''}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Lim inn din API-nøkkel"
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors pr-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                tabIndex={-1}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Nøkkelen lagres kun lokalt på din Mac og brukes direkte mot leverandøren.
+            </p>
+          </div>
+        )}
 
         {modelConfig.provider === 'ollama' && (
           <div>

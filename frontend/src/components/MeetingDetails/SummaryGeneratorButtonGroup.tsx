@@ -116,8 +116,8 @@ export function SummaryGeneratorButtonGroup({
       });
 
       if (!modelInfo) {
-        toast.error('Model not found', {
-          description: `Could not find information for model: ${selectedModel}`,
+        toast.error('Modell ikke funnet', {
+          description: `Kunne ikke finne informasjon for modell: ${selectedModel}`,
           duration: 5000,
         });
         setSettingsDialogOpen(true);
@@ -309,7 +309,7 @@ export function SummaryGeneratorButtonGroup({
           aria-describedby={undefined}
         >
           <VisuallyHidden>
-            <DialogTitle>Model Settings</DialogTitle>
+            <DialogTitle>Modellinnstillinger</DialogTitle>
           </VisuallyHidden>
           <ModelSettingsModal
             onSave={async (config) => {

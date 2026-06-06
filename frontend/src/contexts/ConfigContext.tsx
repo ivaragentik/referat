@@ -185,7 +185,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
         setModels(modelList);
         setError('');
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load Ollama models');
+        setError(err instanceof Error ? err.message : 'Kunne ikke laste Ollama-modeller');
         console.error('Error loading models:', err);
       }
     };

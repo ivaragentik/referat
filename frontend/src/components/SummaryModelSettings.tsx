@@ -29,7 +29,17 @@ export function SummaryModelSettings({ refetchTrigger }: SummaryModelSettingsPro
     try {
       const data = await invoke('api_get_model_config') as any;
       if (data && data.provider !== null) {
-        // (API key fetch for cloud providers removed — only builtin-ai and ollama are supported in this fork)
+        // Fetch API key if not included and provider requires it (openai / claude)
+        if ((data.provider === 'openai' || data.provider === 'claude') && !data.apiKey) {
+          try {
+            const apiKeyData = await invoke('api_get_api_key', {
+              provider: data.provider
+            }) as string;
+            data.apiKey = apiKeyData;
+          } catch (err) {
+            console.error('Failed to fetch API key:', err);
+          }
+        }
         setModelConfig(data);
       }
     } catch (error) {

@@ -65,7 +65,7 @@ export const useSidebar = () => {
 };
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [currentMeeting, setCurrentMeeting] = useState<CurrentMeeting | null>({ id: 'intro-call', title: '+ New Call' });
+  const [currentMeeting, setCurrentMeeting] = useState<CurrentMeeting | null>({ id: 'intro-call', title: '+ Nytt møte' });
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [meetings, setMeetings] = useState<CurrentMeeting[]>([]);
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>([]);
@@ -116,7 +116,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const baseItems: SidebarItem[] = [
     {
       id: 'meetings',
-      title: 'Meeting Notes',
+      title: 'Møtenotater',
       type: 'folder' as const,
       children: [
         ...meetings.map(meeting => ({ id: meeting.id, title: meeting.title, type: 'file' as const }))
@@ -132,7 +132,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   // Update current meeting when on home page
   useEffect(() => {
     if (pathname === '/') {
-      setCurrentMeeting({ id: 'intro-call', title: '+ New Call' });
+      setCurrentMeeting({ id: 'intro-call', title: '+ Nytt møte' });
     }
     setSidebarItems(baseItems);
   }, [pathname]);
@@ -214,7 +214,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
         });
         onUpdate({
           status: 'error',
-          error: 'Summary generation timed out after 15 minutes. Please try again or check your model configuration.'
+          error: 'Sammendragsgenerering tidsavbrutt etter 15 minutter. Prøv igjen eller sjekk modellkonfigurasjonen din.'
         });
         return;
       }

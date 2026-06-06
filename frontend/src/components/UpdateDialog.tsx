@@ -135,7 +135,7 @@ export function UpdateDialog({ open, onOpenChange, updateInfo }: UpdateDialogPro
       await relaunch();
     } catch (err: any) {
       console.error('Update failed:', err);
-      setError(err.message || 'Failed to download or install update');
+      setError(err.message || 'Kunne ikke laste ned eller installere oppdatering');
       setIsDownloading(false);
       toast.error('Oppdatering mislyktes: ' + (err.message || 'Ukjent feil'));
     }

@@ -54,9 +54,9 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
     if (!summary) {
       return {
         Agenda: { title: "Agenda", blocks: [] },
-        Decisions: { title: "Decisions", blocks: [] },
-        ActionItems: { title: "Action Items", blocks: [] },
-        ClosingRemarks: { title: "Closing Remarks", blocks: [] }
+        Decisions: { title: "Beslutninger", blocks: [] },
+        ActionItems: { title: "Handlingspunkter", blocks: [] },
+        ClosingRemarks: { title: "Avsluttende bemerkninger", blocks: [] }
       };
     }
     return ensureUniqueBlockIds(summary);
@@ -685,14 +685,14 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
             onClick={handleCopyBlocks}
           >
             <span className="text-gray-600">📋</span>
-            <span>Copy {selectedBlocks.length > 1 ? `${selectedBlocks.length} blocks` : 'block'}</span>
+            <span>Kopier {selectedBlocks.length > 1 ? `${selectedBlocks.length} blokker` : 'blokk'}</span>
           </button>
           <button
             className="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600 flex items-center space-x-2"
             onClick={handleDeleteBlocks}
           >
             <span>🗑️</span>
-            <span>Delete {selectedBlocks.length > 1 ? `${selectedBlocks.length} blocks` : 'block'}</span>
+            <span>Slett {selectedBlocks.length > 1 ? `${selectedBlocks.length} blokker` : 'blokk'}</span>
           </button>
         </div>
       )}
@@ -750,7 +750,7 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
           <button
             onClick={handleAddSection}
             className="p-2 hover:bg-gray-100 rounded"
-            title="Add new section"
+            title="Legg til ny seksjon"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

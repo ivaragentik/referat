@@ -198,7 +198,7 @@ export function RetranscribeDialog({
 
   const handleStartRetranscription = async () => {
     if (!meetingFolderPath) {
-      setError('Meeting folder path not available');
+      setError('Mappebane for møtet er ikke tilgjengelig');
       return;
     }
 

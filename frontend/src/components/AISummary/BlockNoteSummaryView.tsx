@@ -159,7 +159,7 @@ export const BlockNoteSummaryView = forwardRef<BlockNoteSummaryViewRef, BlockNot
       console.log('✅ Save successful');
     } catch (err) {
       console.error('❌ Save failed:', err);
-      alert('Failed to save changes. Please try again.');
+      alert('Kunne ikke lagre endringer. Prøv igjen.');
     } finally {
       setIsSaving(false);
     }

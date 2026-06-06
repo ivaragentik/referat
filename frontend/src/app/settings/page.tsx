@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { ArrowLeft, Settings2, Mic, Database as DatabaseIcon, SparkleIcon, FlaskConical } from 'lucide-react';
+import { ArrowLeft, Settings2, Mic, Database as DatabaseIcon, SparkleIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { invoke } from '@tauri-apps/api/core';
 import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
@@ -10,17 +10,15 @@ import { TranscriptSettings } from '@/components/TranscriptSettings';
 import { RecordingSettings } from '@/components/RecordingSettings';
 import { PreferenceSettings } from '@/components/PreferenceSettings';
 import { SummaryModelSettings } from '@/components/SummaryModelSettings';
-import { BetaSettings } from '@/components/BetaSettings';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 // Tabs configuration (constant)
 const TABS = [
-  { value: 'general', label: 'General', icon: Settings2 },
-  { value: 'recording', label: 'Recordings', icon: Mic },
-  { value: 'Transcriptionmodels', label: 'Transcription', icon: DatabaseIcon },
-  { value: 'summaryModels', label: 'Summary', icon: SparkleIcon },
-  { value: 'beta', label: 'Beta', icon: FlaskConical }
+  { value: 'general', label: 'Generelt', icon: Settings2 },
+  { value: 'recording', label: 'Opptak', icon: Mic },
+  { value: 'Transcriptionmodels', label: 'Transkripsjon', icon: DatabaseIcon },
+  { value: 'summaryModels', label: 'Sammendrag', icon: SparkleIcon },
 ] as const;
 
 export default function SettingsPage() {
@@ -74,9 +72,9 @@ export default function SettingsPage() {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Back</span>
+              <span>Tilbake</span>
             </button>
-            <h1 className="text-3xl font-bold">Settings</h1>
+            <h1 className="text-3xl font-bold">Innstillinger</h1>
           </div>
         </div>
       </div>
@@ -124,9 +122,6 @@ export default function SettingsPage() {
             </TabsContent>
             <TabsContent value="summaryModels">
               <SummaryModelSettings />
-            </TabsContent>
-            <TabsContent value="beta" className="mt-6">
-              <BetaSettings />
             </TabsContent>
           </Tabs>
         </div>

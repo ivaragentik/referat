@@ -81,7 +81,7 @@ export function usePaginatedTranscripts({
             return data;
         } catch (err) {
             console.error('Failed to load meeting metadata:', err);
-            setError('Failed to load meeting details');
+            setError('Kunne ikke laste møtedetaljer');
             return null;
         }
     }, [meetingId]);
@@ -126,7 +126,7 @@ export function usePaginatedTranscripts({
             return newTranscripts;
         } catch (err) {
             console.error('Failed to load transcripts:', err);
-            setError('Failed to load transcripts');
+            setError('Kunne ikke laste transkripsjoner');
             return [];
         }
     }, [meetingId]);

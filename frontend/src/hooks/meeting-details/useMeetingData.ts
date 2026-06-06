@@ -15,7 +15,7 @@ export function useMeetingData({ meeting, summaryData, onMeetingUpdated }: UseMe
   // State
   // Use prop directly since summary generation fetches transcripts independently
   const transcripts = meeting.transcripts;
-  const [meetingTitle, setMeetingTitle] = useState(meeting.title || '+ New Call');
+  const [meetingTitle, setMeetingTitle] = useState(meeting.title || '+ Nytt møte');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isTitleDirty, setIsTitleDirty] = useState(false);
   const [aiSummary, setAiSummary] = useState<Summary | null>(summaryData);
@@ -67,7 +67,7 @@ export function useMeetingData({ meeting, summaryData, onMeetingUpdated }: UseMe
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError('Failed to save meeting title: Unknown error');
+        setError('Kunne ikke lagre møtetittel: Ukjent feil');
       }
       return false;
     }
@@ -111,7 +111,7 @@ export function useMeetingData({ meeting, summaryData, onMeetingUpdated }: UseMe
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError('Failed to save meeting summary: Unknown error');
+        setError('Kunne ikke lagre møtesammendrag: Ukjent feil');
       }
     }
   }, [meeting.id, meetingTitle]);
@@ -132,10 +132,10 @@ export function useMeetingData({ meeting, summaryData, onMeetingUpdated }: UseMe
         await handleSaveSummary(aiSummary);
       }
 
-      toast.success("Changes saved successfully");
+      toast.success("Endringer lagret");
     } catch (error) {
       console.error('Failed to save changes:', error);
-      toast.error("Failed to save changes", { description: String(error) });
+      toast.error("Kunne ikke lagre endringer", { description: String(error) });
     } finally {
       setIsSaving(false);
     }

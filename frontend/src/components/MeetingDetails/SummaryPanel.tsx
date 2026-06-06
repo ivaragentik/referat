@@ -119,8 +119,8 @@ export function SummaryPanel({
   const effectiveLangLabel = summaryLang ? labelForCode(summaryLang) : 'Auto';
   const isLocalFallbackLanguage = summaryLangStorage === 'local_fallback';
   const autoSubtitle = isLocalFallbackLanguage
-    ? 'Saved on this device for folderless meetings'
-    : 'Uses dominant transcript language';
+    ? 'Lagret på denne enheten for møter uten mappe'
+    : 'Bruker dominerende transkripsjonsspråk';
 
   useEffect(() => {
     let cancelled = false;
@@ -136,8 +136,8 @@ export function SummaryPanel({
         }
       } catch (err) {
         console.error('Failed to load summary language:', err);
-        toast.warning('Could not load saved summary language', {
-          description: 'Using Auto until meeting metadata can be read.',
+        toast.warning('Kunne ikke laste lagret sammendragsspråk', {
+          description: 'Bruker Auto inntil møtemetadata kan leses.',
         });
         if (!cancelled && languageLoadVersionRef.current === loadVersion) setSummaryLang(null);
       }
@@ -169,8 +169,8 @@ export function SummaryPanel({
             setSummaryLang(saved.language);
             setSummaryLangStorage(saved.storage);
             if (saved.storage === 'local_fallback') {
-              toast.info('Summary language saved on this device', {
-                description: 'This meeting has no recording folder, so the preference cannot be written to meeting metadata.',
+              toast.info('Sammendragsspråk lagret på denne enheten', {
+                description: 'Dette møtet har ingen opptaksmappe, så preferansen kan ikke skrives til møtemetadata.',
               });
             }
             if (request.language) {
@@ -187,7 +187,7 @@ export function SummaryPanel({
             activeMeetingIdRef.current === request.meetingId
           ) {
             console.error('Failed to persist summary language:', err);
-            toast.error('Failed to save summary language');
+            toast.error('Kunne ikke lagre sammendragsspråk');
             setSummaryLang(request.rollback.language);
             setSummaryLangStorage(request.rollback.storage);
             return;
@@ -230,8 +230,8 @@ export function SummaryPanel({
         <Button
           variant="outline"
           size="sm"
-          title={`Summary language: ${effectiveLangLabel}${isLocalFallbackLanguage ? ' (saved on this device)' : ''}`}
-          aria-label="Set summary language"
+          title={`Sammendragsspråk: ${effectiveLangLabel}${isLocalFallbackLanguage ? ' (lagret på denne enheten)' : ''}`}
+          aria-label="Angi sammendragsspråk"
         >
           <Languages size={18} />
           <span className="hidden lg:inline">{effectiveLangLabel}</span>
@@ -379,7 +379,7 @@ export function SummaryPanel({
                   </ul>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                  <h4 className="font-medium mb-1">Action Items</h4>
+                  <h4 className="font-medium mb-1">Handlingspunkter</h4>
                   <ul className="list-disc pl-4">
                     {summaryResponse.summary.action_items.blocks.map((block, i) => (
                       <li key={i} className="text-sm">{block.content}</li>
@@ -387,7 +387,7 @@ export function SummaryPanel({
                   </ul>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                  <h4 className="font-medium mb-1">Decisions</h4>
+                  <h4 className="font-medium mb-1">Beslutninger</h4>
                   <ul className="list-disc pl-4">
                     {summaryResponse.summary.decisions.blocks.map((block, i) => (
                       <li key={i} className="text-sm">{block.content}</li>
@@ -395,7 +395,7 @@ export function SummaryPanel({
                   </ul>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                  <h4 className="font-medium mb-1">Main Topics</h4>
+                  <h4 className="font-medium mb-1">Hovedtemaer</h4>
                   <ul className="list-disc pl-4">
                     {summaryResponse.summary.main_topics.blocks.map((block, i) => (
                       <li key={i} className="text-sm">{block.content}</li>
@@ -405,7 +405,7 @@ export function SummaryPanel({
               </div>
               {summaryResponse.raw_summary ? (
                 <div className="mt-4">
-                  <h4 className="font-medium mb-1">Full Summary</h4>
+                  <h4 className="font-medium mb-1">Fullt sammendrag</h4>
                   <p className="text-sm whitespace-pre-wrap">{summaryResponse.raw_summary}</p>
                 </div>
               ) : null}

@@ -37,7 +37,7 @@
 
 > Stupidly simple. Seks steg fra null til transkripsjon.
 
-1. **Last ned appen.** Gå til [Releases](https://github.com/iaknutsen/referat/releases) <!-- TODO: oppdater lenke når releases er satt opp --> og last ned `.dmg`-filen.
+1. **Last ned appen.** Gå til [Releases](https://github.com/keenhound/referat/releases) <!-- TODO: oppdater lenke når releases er satt opp --> og last ned `.dmg`-filen.
 
 2. **Installer.** Åpne `.dmg`, dra **Referat** til Programmer-mappen.
 
@@ -88,7 +88,7 @@ Ikke ennå. Se [veikart](#veikart).
 
 ## Følgesvenn: meetily-mcp
 
-Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møtene dine, er på vei til denne repo-familien. Hold øye med [releases](https://github.com/iaknutsen/referat/releases). <!-- TODO: oppdater lenke -->
+Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møtene dine, er på vei til denne repo-familien. Hold øye med [releases](https://github.com/keenhound/referat/releases). <!-- TODO: oppdater lenke -->
 
 ---
 
@@ -106,7 +106,7 @@ Transcripts and recordings are stored locally in SQLite (`~/Library/Application 
 
 ### Quick start (English)
 
-1. Download the `.dmg` from [Releases](https://github.com/iaknutsen/referat/releases) <!-- TODO: update link -->
+1. Download the `.dmg` from [Releases](https://github.com/keenhound/referat/releases) <!-- TODO: update link -->
 2. Drag **Referat** to Applications
 3. **First launch: right-click → Open** (the app is unsigned — see [Roadmap](#roadmap))
 4. Grant microphone and screen recording permissions
@@ -141,7 +141,7 @@ Mic + system audio → Core Audio → whisper.cpp (NB-Whisper, local) → SQLite
 ### Build
 
 ```bash
-git clone https://github.com/iaknutsen/referat
+git clone https://github.com/keenhound/referat
 cd referat/frontend
 pnpm install
 pnpm run tauri:build
@@ -182,6 +182,6 @@ This project is a Norwegian-language fork of **[Meetily v0.4.0](https://github.c
 
 <div align="center">
 
-Laget av [Agentik](https://github.com/iaknutsen/referat)
+Laget av [Agentik](https://agentik.no)
 
 </div>

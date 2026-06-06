@@ -55,7 +55,7 @@ export function ChunkProgressDisplay({
   };
 
   const formatTimeRemaining = (ms?: number) => {
-    if (!ms || ms <= 0) return 'Calculating...';
+    if (!ms || ms <= 0) return 'Beregner...';
     return formatDuration(ms);
   };
 
@@ -93,11 +93,11 @@ export function ChunkProgressDisplay({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <h3 className="text-lg font-semibold text-gray-900">
-            Processing Progress
+            Behandlingsprogresjon
           </h3>
           {isPaused && (
             <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-              Paused
+              Satt på pause
             </span>
           )}
         </div>
@@ -116,7 +116,7 @@ export function ChunkProgressDisplay({
               onClick={onResume}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
             >
-              Resume
+              Gjenoppta
             </button>
           )}
 
@@ -124,7 +124,7 @@ export function ChunkProgressDisplay({
             onClick={onCancel}
             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
           >
-            Cancel
+            Avbryt
           </button>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function ChunkProgressDisplay({
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">
-            {progress.completed_chunks} of {progress.total_chunks} chunks completed
+            {progress.completed_chunks} av {progress.total_chunks} deler fullført
           </span>
           <span className="text-sm font-medium text-gray-700">
             {completionPercentage}%
@@ -154,28 +154,28 @@ export function ChunkProgressDisplay({
           <div className="text-lg font-semibold text-green-600">
             {progress.completed_chunks}
           </div>
-          <div className="text-gray-600">Completed</div>
+          <div className="text-gray-600">Fullført</div>
         </div>
 
         <div className="text-center">
           <div className="text-lg font-semibold text-blue-600">
             {progress.processing_chunks}
           </div>
-          <div className="text-gray-600">Processing</div>
+          <div className="text-gray-600">Behandler</div>
         </div>
 
         <div className="text-center">
           <div className="text-lg font-semibold text-gray-600">
             {progress.total_chunks - progress.completed_chunks - progress.processing_chunks - progress.failed_chunks}
           </div>
-          <div className="text-gray-600">Pending</div>
+          <div className="text-gray-600">Venter</div>
         </div>
 
         <div className="text-center">
           <div className="text-lg font-semibold text-red-600">
             {progress.failed_chunks}
           </div>
-          <div className="text-gray-600">Failed</div>
+          <div className="text-gray-600">Mislyktes</div>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ export function ChunkProgressDisplay({
           <div className="flex items-center space-x-2">
             <span className="text-blue-600">⏱️</span>
             <span className="text-sm text-blue-800">
-              Estimated time remaining: {formatTimeRemaining(progress.estimated_remaining_ms)}
+              Estimert gjenstående tid: {formatTimeRemaining(progress.estimated_remaining_ms)}
             </span>
           </div>
         </div>
@@ -194,7 +194,7 @@ export function ChunkProgressDisplay({
       {/* Recent Chunks Grid */}
       <div className="space-y-2">
         <h4 className="text-sm font-medium text-gray-700 mb-2">
-          Recent Chunks ({Math.min(progress.chunks.length, 10)} of {progress.total_chunks})
+          Nylige deler ({Math.min(progress.chunks.length, 10)} av {progress.total_chunks})
         </h4>
 
         <div className="max-h-48 overflow-y-auto space-y-1">
@@ -210,7 +210,7 @@ export function ChunkProgressDisplay({
                   <div className="flex items-center space-x-2">
                     <span>{getChunkStatusIcon(chunk.status)}</span>
                     <span className="font-medium">
-                      Chunk {chunk.chunk_id}
+                      Del {chunk.chunk_id}
                     </span>
                     {chunk.duration_ms && (
                       <span className="text-gray-500">
@@ -234,7 +234,7 @@ export function ChunkProgressDisplay({
 
                 {chunk.error_message && (
                   <div className="mt-1 text-red-700 text-xs">
-                    Error: {chunk.error_message}
+                    Feil: {chunk.error_message}
                   </div>
                 )}
               </div>
@@ -248,7 +248,7 @@ export function ChunkProgressDisplay({
           <div className="flex items-center space-x-2">
             <span className="text-green-600">🎉</span>
             <span className="text-sm font-medium text-green-800">
-              Processing completed! All {progress.total_chunks} chunks have been transcribed.
+              Behandling fullført! Alle {progress.total_chunks} deler er transkribert.
             </span>
           </div>
         </div>
