@@ -39,7 +39,8 @@ export function ClaudeConnector() {
             Spør møtene dine i Claude: &lsquo;Hva ble vi enige om i forrige møte?&rsquo; Referat-koblingen
             gir Claude lesetilgang til møtene dine. Krever Claude Desktop-appen.
             Merk: når du spør Claude om møtene dine, sendes innholdet til Claude (Anthropic) —
-            deres vilkår gjelder for det du deler der.
+            akkurat som i alle skybaserte verktøy. Forskjellen her: det skjer kun når du
+            selv velger det.
           </p>
           <button
             onClick={handleInstall}

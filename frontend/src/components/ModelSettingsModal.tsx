@@ -735,7 +735,8 @@ export function ModelSettingsModal({
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Nøkkelen lagres kun lokalt på din Mac. Merk: møteinnholdet sendes til
-              leverandøren når sammendrag lages — deres vilkår gjelder.
+              leverandøren når sammendrag lages — akkurat som i alle skybaserte verktøy,
+              men her velger du det selv.
             </p>
           </div>
         )}

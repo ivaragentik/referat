@@ -114,7 +114,9 @@ export function About() {
                 </p>
                 <p className="text-xs text-gray-400">
                     Alt skjer lokalt på din Mac. Kobler du til Claude eller bruker egen
-                    API-nøkkel, sendes møteinnhold til leverandøren når du bruker de funksjonene.
+                    API-nøkkel, sendes møteinnhold til leverandøren når du bruker de funksjonene
+                    — slik all skybasert møteprogramvare fungerer hele tiden. Forskjellen i
+                    Referat: det skjer kun når du selv velger det.
                 </p>
             </div>
 
