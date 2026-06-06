@@ -7,6 +7,7 @@ import { configService, ModelConfig } from '@/services/configService';
 import { invoke } from '@tauri-apps/api/core';
 import Analytics from '@/lib/analytics';
 import { BetaFeatures, BetaFeatureKey, loadBetaFeatures, saveBetaFeatures } from '@/types/betaFeatures';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 
 export interface OllamaModel {
   name: string;
@@ -101,7 +102,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
   const [modelConfig, setModelConfig] = useState<ModelConfig>({
     provider: 'ollama',
     model: 'llama3.2:latest',
-    whisperModel: 'large-v3',
+    whisperModel: DEFAULT_WHISPER_MODEL,
     ollamaEndpoint: null
   });
 

@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { LoaderIcon } from "lucide-react";
 import { useConfig } from "@/contexts/ConfigContext";
 import { usePaginatedTranscripts } from "@/hooks/usePaginatedTranscripts";
+import { DEFAULT_WHISPER_MODEL } from "@/constants/modelDefaults";
 
 interface MeetingDetailsResponse {
   id: string;
@@ -100,7 +101,7 @@ function MeetingDetailsContent() {
         await invoke('api_save_model_config', {
           provider: 'ollama',
           model: '',
-          whisperModel: 'large-v3',
+          whisperModel: DEFAULT_WHISPER_MODEL,
           apiKey: null,
           ollamaEndpoint: null,
         });

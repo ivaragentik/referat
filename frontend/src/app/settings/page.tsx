@@ -4,6 +4,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { ArrowLeft, Settings2, Mic, Database as DatabaseIcon, SparkleIcon, FlaskConical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { invoke } from '@tauri-apps/api/core';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 import { motion } from 'framer-motion';
 import { TranscriptSettings } from '@/components/TranscriptSettings';
 import { RecordingSettings } from '@/components/RecordingSettings';
@@ -40,7 +41,7 @@ export default function SettingsPage() {
           console.log('Loaded saved transcript config:', config);
           setTranscriptModelConfig({
             provider: config.provider || 'localWhisper',
-            model: config.model || 'large-v3',
+            model: config.model || DEFAULT_WHISPER_MODEL,
             apiKey: config.apiKey || null
           });
         }

@@ -7,6 +7,7 @@ import { ModelConfig, ModelSettingsModal } from '@/components/ModelSettingsModal
 import { SummaryLanguageSettings } from '@/components/SummaryLanguageSettings';
 import { Switch } from './ui/switch';
 import { useConfig } from '@/contexts/ConfigContext';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 
 interface SummaryModelSettingsProps {
   refetchTrigger?: number; // Change this to trigger refetch
@@ -16,7 +17,7 @@ export function SummaryModelSettings({ refetchTrigger }: SummaryModelSettingsPro
   const [modelConfig, setModelConfig] = useState<ModelConfig>({
     provider: 'ollama',
     model: 'llama3.2:latest',
-    whisperModel: 'large-v3',
+    whisperModel: DEFAULT_WHISPER_MODEL,
     apiKey: null,
     ollamaEndpoint: null
   });

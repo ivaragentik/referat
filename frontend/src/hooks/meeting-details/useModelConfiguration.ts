@@ -3,6 +3,7 @@ import { ModelConfig } from '@/components/ModelSettingsModal';
 import { invoke as invokeTauri } from '@tauri-apps/api/core';
 import { toast } from 'sonner';
 import Analytics from '@/lib/analytics';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 
 interface UseModelConfigurationProps {
   serverAddress: string | null;
@@ -13,7 +14,7 @@ export function useModelConfiguration({ serverAddress }: UseModelConfigurationPr
   const [modelConfig, setModelConfig] = useState<ModelConfig>({
     provider: 'ollama',
     model: '', // Empty until loaded from DB
-    whisperModel: 'large-v3'
+    whisperModel: DEFAULT_WHISPER_MODEL
   });
   const [isLoading, setIsLoading] = useState(true);
   const [, setError] = useState<string>('');
