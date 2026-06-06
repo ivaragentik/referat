@@ -950,26 +950,52 @@ impl WhisperEngine {
             active.insert(model_name.to_string());
         }
 
+        // Run the actual download; clean up active_downloads in exactly one place
+        // regardless of whether it succeeds, fails, or is cancelled.
+        let result = self.download_model_inner(model_name, model_url, progress_callback).await;
+
+        {
+            let mut active = self.active_downloads.write().await;
+            active.remove(model_name);
+        }
+
+        // On any error, reset status to Missing so retries are not blocked.
+        if result.is_err() {
+            let mut models = self.available_models.write().await;
+            if let Some(model_info) = models.get_mut(model_name) {
+                model_info.status = ModelStatus::Missing;
+            }
+        }
+
+        result
+    }
+
+    async fn download_model_inner(
+        &self,
+        model_name: &str,
+        model_url: &'static str,
+        progress_callback: Option<Box<dyn Fn(u8) + Send>>,
+    ) -> Result<()> {
         // Clear any previous cancellation flag for this model
         {
             let mut cancel_flag = self.cancel_download_flag.write().await;
             *cancel_flag = None;
         }
-        
+
         log::info!("Model URL for {}: {}", model_name, model_url);
-        
+
         // Generate correct filename - all models follow ggml-{model_name}.bin pattern
         let filename = format!("ggml-{}.bin", model_name);
         let file_path = self.models_dir.join(&filename);
-        
+
         log::info!("Downloading to file path: {}", file_path.display());
-        
+
         // Create models directory if it doesn't exist
         if !self.models_dir.exists() {
             fs::create_dir_all(&self.models_dir).await
                 .map_err(|e| anyhow!("Failed to create models directory: {}", e))?;
         }
-        
+
         // Update model status to downloading
         {
             let mut models = self.available_models.write().await;
@@ -977,34 +1003,31 @@ impl WhisperEngine {
                 model_info.status = ModelStatus::Downloading { progress: 0 };
             }
         }
-        
+
         log::info!("Creating HTTP client and starting request...");
         let client = Client::new();
-        
+
         log::info!("Sending GET request to: {}", model_url);
         let response = client.get(model_url).send().await
             .map_err(|e| anyhow!("Failed to start download: {}", e))?;
-        
+
         log::info!("Received response with status: {}", response.status());
         if !response.status().is_success() {
-            // Remove from active downloads on error
-            let mut active = self.active_downloads.write().await;
-            active.remove(model_name);
             return Err(anyhow!("Download failed with status: {}", response.status()));
         }
-        
+
         let total_size = response.content_length().unwrap_or(0);
         log::info!("Response successful, content length: {} bytes ({:.1} MB)", total_size, total_size as f64 / (1024.0 * 1024.0));
-        
+
         if total_size == 0 {
             log::warn!("Content length is 0 or unknown - download may not show accurate progress");
         }
-        
+
         let mut file = fs::File::create(&file_path).await
             .map_err(|e| anyhow!("Failed to create file: {}", e))?;
-        
+
         log::info!("File created successfully at: {}", file_path.display());
-        
+
         // Stream download with real progress reporting
         log::info!("Starting streaming download...");
         log::info!("Expected size: {:.1} MB", total_size as f64 / (1024.0 * 1024.0));
@@ -1026,9 +1049,6 @@ impl WhisperEngine {
                 let cancel_flag = self.cancel_download_flag.read().await;
                 if cancel_flag.as_ref() == Some(&model_name.to_string()) {
                     log::info!("Download cancelled for {}", model_name);
-                    // Remove from active downloads on cancellation
-                    let mut active = self.active_downloads.write().await;
-                    active.remove(model_name);
                     return Err(anyhow!("Download cancelled by user"));
                 }
             }
@@ -1075,7 +1095,7 @@ impl WhisperEngine {
         }
 
         log::info!("Streaming download completed: {} bytes", downloaded);
-        
+
         // Ensure 100% progress is always reported
         {
             let mut models = self.available_models.write().await;
@@ -1083,16 +1103,16 @@ impl WhisperEngine {
                 model_info.status = ModelStatus::Downloading { progress: 100 };
             }
         }
-        
+
         if let Some(ref callback) = progress_callback {
             callback(100);
         }
-        
+
         file.flush().await
             .map_err(|e| anyhow!("Failed to flush file: {}", e))?;
-        
+
         log::info!("Download completed for model: {}", model_name);
-        
+
         // Update model status to available
         {
             let mut models = self.available_models.write().await;
@@ -1100,12 +1120,6 @@ impl WhisperEngine {
                 model_info.status = ModelStatus::Available;
                 model_info.path = file_path.clone();
             }
-        }
-
-        // Remove from active downloads on completion
-        {
-            let mut active = self.active_downloads.write().await;
-            active.remove(model_name);
         }
 
         Ok(())
