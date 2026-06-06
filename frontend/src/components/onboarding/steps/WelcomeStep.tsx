@@ -10,22 +10,22 @@ export function WelcomeStep() {
   const features = [
     {
       icon: Lock,
-      title: 'Your data never leaves your device',
+      title: 'Dataene dine forlater aldri din Mac',
     },
     {
       icon: Sparkles,
-      title: 'Intelligent summaries & insights',
+      title: 'Intelligente sammendrag og innsikter',
     },
     {
       icon: Cpu,
-      title: 'Works offline, no cloud required',
+      title: 'Fungerer uten internett — ingen sky',
     },
   ];
 
   return (
     <OnboardingContainer
-      title="Welcome to Meetily"
-      description="Record. Transcribe. Summarize. All on your device."
+      title="Velkommen til Knutsen Notes"
+      description="Knutsen Notes transkriberer møtene dine på norsk — helt på din Mac."
       step={1}
       hideProgress={true}
     >

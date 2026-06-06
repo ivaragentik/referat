@@ -1,10 +1,10 @@
 [package]
-name = "meetily"
+name = "knutsen-notes"
 version = "0.4.0"
-description = "A Tauri App for meeting minutes"
-authors = ["Sujith S"]
+description = "Ingen bot. Ingen sky. Ingen regning."
+authors = ["Ivar Knutsen"]
 license = "MIT"
-repository = "https://github.com/Zackriya-Solutions/meeting-minutes"
+repository = "https://github.com/iaknutsen/knutsen-notes"
 edition = "2021"
 rust-version = "1.77"
 
