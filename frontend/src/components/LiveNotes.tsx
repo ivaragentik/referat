@@ -182,16 +182,16 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
 
   return (
     <div className="flex flex-col flex-1 overflow-y-auto pb-20">
-      <div className="flex justify-center px-4 pt-4">
-        <div className="w-2/3 max-w-[750px] flex flex-col gap-2">
+      <div className="flex justify-center px-6 pt-6 flex-1">
+        <div className="w-full max-w-[760px] flex flex-col flex-1">
           <textarea
             value={notes}
             onChange={handleChange}
             placeholder="Skriv stikkord mens møtet pågår…"
-            className="w-full min-h-[60vh] resize-none rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent transition-shadow shadow-sm leading-relaxed"
+            className="w-full flex-1 min-h-[60vh] resize-none border-0 bg-transparent px-2 py-1 text-lg text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-0 leading-relaxed"
             spellCheck={false}
           />
-          <p className="text-xs text-gray-400 text-center">
+          <p className="text-xs text-gray-400 text-center pt-3 pb-1">
             Notatene dine veves inn i sammendraget når møtet er ferdig.
           </p>
         </div>

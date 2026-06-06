@@ -1196,7 +1196,12 @@ pub async fn install_claude_connector<R: Runtime>(app: AppHandle<R>) -> Result<(
             .args(&["/C", "start", "", &mcpb_path.to_string_lossy()])
             .status()
     } else if cfg!(target_os = "macos") {
+        // Target Claude Desktop explicitly. A plain `open <file.mcpb>` relies on
+        // the system default handler for .mcpb, which is often unset — it returns
+        // success but silently does nothing. `open -a Claude` forces Claude
+        // Desktop to handle it (and errors cleanly if Claude isn't installed).
         Command::new("open")
+            .args(&["-a", "Claude"])
             .arg(&mcpb_path)
             .status()
     } else {
