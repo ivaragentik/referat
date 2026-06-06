@@ -29,7 +29,7 @@
 
 - **Ingen bot i møtet.** Referat fanger opp lyd direkte fra mikrofonen og systemlyden på Macen din via Core Audio. Deltakerne ser ingenting, og du trenger ikke å gi tilgang til møteplattformens API. Fungerer like godt i fysiske møterom.
 
-- **Alt lokalt — GDPR-vennlig by design.** Transkripsjoner og opptak lagres i `~/Library/Application Support/no.agentik.referat/` (SQLite). Ingenting sendes til skyen med mindre du selv velger å koble til en ekstern AI for sammendrag. Du eier dataene dine, bokstavelig talt.
+- **Alt lokalt — GDPR-vennlig by design.** Transkripsjoner og møtehistorikk lagres i `~/Library/Application Support/no.agentik.referat/` (SQLite); lydopptak lagres i `~/Movies/Referat-opptak/`. Ingenting sendes til skyen med mindre du selv velger å koble til en ekstern AI for sammendrag. Du eier dataene dine, bokstavelig talt.
 
 ---
 
@@ -66,6 +66,8 @@ SQLite  (~Library/Application Support/no.agentik.referat/)
 
 Alt skjer på din maskin. Appen har ingen utgående nettverksforbindelser med mindre du eksplisitt legger inn en ekstern API-nøkkel for sammendrag.
 
+**Egne maler:** Du kan lage dine egne referatmaler ved å velge «Lag din egen mal…» i malvelgeren i Innstillinger. Maler lagres som `.json`-filer og lar deg styre struktur og språk i de genererte referatene.
+
 ---
 
 ## Ofte stilte spørsmål
@@ -100,7 +102,7 @@ Referat leveres med innebygd MCP-server som lar Claude søke gjennom møtene og 
 
 **Referat** is a free, open-source (MIT) macOS meeting note-taker built for Norwegian. It captures microphone and system audio directly via Core Audio — no bot joins your call — and transcribes entirely on your Mac using [NB-Whisper](https://huggingface.co/NbAiLab/nb-whisper-large), the National Library of Norway's fine-tuned Whisper model (~2% WER on Bokmål vs ~15% for stock Whisper). Bokmål, Nynorsk, and English are all supported.
 
-Transcripts and recordings are stored locally in SQLite (`~/Library/Application Support/no.agentik.referat/`). Nothing leaves your Mac unless you opt in to an external API for summaries. Local summarisation via a bundled small LLM is also available with no API key required.
+Transcripts and meeting history are stored locally in SQLite (`~/Library/Application Support/no.agentik.referat/`); audio recordings are saved to `~/Movies/Referat-opptak/`. Nothing leaves your Mac unless you opt in to an external API for summaries. Local summarisation via a bundled small LLM is also available with no API key required.
 
 <!-- TODO: screenshot placeholder -->
 

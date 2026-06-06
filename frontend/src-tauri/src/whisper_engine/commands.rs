@@ -433,15 +433,25 @@ pub async fn whisper_download_model(
         let app_handle_clone = app_handle.clone();
         let model_name_clone = model_name.clone();
 
-        let progress_callback = Box::new(move |progress: u8| {
-            log::info!("Download progress for {}: {}%", model_name_clone, progress);
+        let progress_callback = Box::new(move |p: crate::whisper_engine::WhisperDownloadProgress| {
+            log::info!(
+                "Download progress for {}: {}% ({:.1} MB / {:.1} MB, {:.1} MB/s)",
+                model_name_clone, p.percent, p.downloaded_mb, p.total_mb, p.speed_mbps
+            );
 
-            // Emit download progress event
+            // Emit download progress event — field names match parakeet's payload so the
+            // existing frontend byte-counter listener renders correctly for both engines.
             if let Err(e) = app_handle_clone.emit(
                 "model-download-progress",
                 serde_json::json!({
                     "modelName": model_name_clone,
-                    "progress": progress
+                    "progress": p.percent,
+                    "downloaded_bytes": p.downloaded_bytes,
+                    "total_bytes": p.total_bytes,
+                    "downloaded_mb": p.downloaded_mb,
+                    "total_mb": p.total_mb,
+                    "speed_mbps": p.speed_mbps,
+                    "status": if p.percent == 100 { "completed" } else { "downloading" }
                 }),
             ) {
                 log::error!("Failed to emit download progress event: {}", e);

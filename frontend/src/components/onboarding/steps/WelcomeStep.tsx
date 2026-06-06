@@ -58,7 +58,7 @@ export function WelcomeStep() {
           >
             Kom i gang
           </Button>
-          <p className="text-xs text-center text-gray-500">Tar under 3 minutter</p>
+          <p className="text-xs text-center text-gray-500">Krever en engangsnedlasting på rundt 3 GB — sett av litt tid</p>
         </div>
       </div>
     </OnboardingContainer>

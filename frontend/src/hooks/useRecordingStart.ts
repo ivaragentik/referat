@@ -115,7 +115,7 @@ export function useRecordingStart(
         const isDownloading = await checkIfModelDownloading();
         if (isDownloading) {
           toast.info('Modellnedlasting pågår', {
-            description: 'Vent til transkripsjonmodellen er ferdig nedlastet før du starter opptak.',
+            description: 'Vent til transkripsjonsmodellen er ferdig nedlastet før du starter opptak.',
             duration: 5000,
           });
           Analytics.trackButtonClick('start_recording_blocked_downloading', 'home_page');
@@ -123,7 +123,7 @@ export function useRecordingStart(
           toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
             duration: 7000,
           });
-          showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
+          showModal?.('modelSelector', 'Transkripsjonsmodell-oppsett kreves');
           Analytics.trackButtonClick('start_recording_blocked_missing', 'home_page');
         }
         setStatus(RecordingStatus.IDLE);
@@ -183,7 +183,7 @@ export function useRecordingStart(
             const isDownloading = await checkIfModelDownloading();
             if (isDownloading) {
               toast.info('Modellnedlasting pågår', {
-                description: 'Vent til transkripsjonmodellen er ferdig nedlastet før du starter opptak.',
+                description: 'Vent til transkripsjonsmodellen er ferdig nedlastet før du starter opptak.',
                 duration: 5000,
               });
               Analytics.trackButtonClick('start_recording_blocked_downloading', 'sidebar_auto');
@@ -191,7 +191,7 @@ export function useRecordingStart(
               toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
                 duration: 7000,
               });
-              showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
+              showModal?.('modelSelector', 'Transkripsjonsmodell-oppsett kreves');
               Analytics.trackButtonClick('start_recording_blocked_missing', 'sidebar_auto');
             }
             setStatus(RecordingStatus.IDLE);
@@ -270,7 +270,7 @@ export function useRecordingStart(
         const isDownloading = await checkIfModelDownloading();
         if (isDownloading) {
           toast.info('Modellnedlasting pågår', {
-            description: 'Vent til transkripsjonmodellen er ferdig nedlastet før du starter opptak.',
+            description: 'Vent til transkripsjonsmodellen er ferdig nedlastet før du starter opptak.',
             duration: 5000,
           });
           Analytics.trackButtonClick('start_recording_blocked_downloading', 'sidebar_direct');
@@ -278,7 +278,7 @@ export function useRecordingStart(
           toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
             duration: 7000,
           });
-          showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
+          showModal?.('modelSelector', 'Transkripsjonsmodell-oppsett kreves');
           Analytics.trackButtonClick('start_recording_blocked_missing', 'sidebar_direct');
         }
         setStatus(RecordingStatus.IDLE);

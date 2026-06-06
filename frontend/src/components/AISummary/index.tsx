@@ -558,8 +558,8 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
   };
 
   const convertToMarkdown = () => {
-    let markdown = `# AI Generated Summary of Meeting: ${meeting?.id || 'Unknown'} - ${meeting?.title || 'Untitled Meeting'}\n\n`;
-    markdown += `## Date: ${meeting?.created_at ? new Date(meeting.created_at).toLocaleDateString() : new Date().toLocaleDateString()}\n\n`;
+    let markdown = `# Sammendrag av møte: ${meeting?.title || 'Uten tittel'}\n\n`;
+    markdown += `## Dato: ${meeting?.created_at ? new Date(meeting.created_at).toLocaleDateString('nb-NO') : new Date().toLocaleDateString('nb-NO')}\n\n`;
     
     Object.entries(currentSummary).forEach(([key, section]) => {
       if (key === 'title') {

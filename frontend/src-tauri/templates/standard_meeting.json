@@ -1,26 +1,26 @@
 {
-  "name": "Standard Meeting Notes",
-  "description": "A standard template for general meetings, focusing on key outcomes and actions.",
+  "name": "Standard møtereferat",
+  "description": "Et standardmal for generelle møter, med fokus på viktige utfall og handlingspunkter.",
   "sections": [
     {
-      "title": "Summary",
-      "instruction": "Provide a brief, one-paragraph executive summary of the entire meeting.",
+      "title": "Sammendrag",
+      "instruction": "Gi et kort sammendrag på ett avsnitt av hele møtet.",
       "format": "paragraph"
     },
     {
-      "title": "Key Decisions",
-      "instruction": "List the most important decisions made during the meeting.",
+      "title": "Viktige beslutninger",
+      "instruction": "List opp de viktigste beslutningene som ble tatt under møtet.",
       "format": "list"
     },
     {
-      "title": "Action Items",
-      "instruction": "List all assigned tasks with their owners and due date. Always add reference transcript segment and timestamp in the table.",
+      "title": "Handlingspunkter",
+      "instruction": "List opp alle tildelte oppgaver med ansvarsperson og frist. Inkluder alltid referanse til transkripsjonssegment og tidsstempel i tabellen.",
       "format": "list",
-      "item_format": "| **Owner** | Task | Due | Reference Transcript Segment | Segment Time stamp |\n| --- | --- | --- | --- | --- |"
+      "item_format": "| **Ansvarlig** | Oppgave | Frist | Referanse til segment | Tidsstempel |\n| --- | --- | --- | --- | --- |"
     },
     {
-      "title": "Discussion Highlights",
-      "instruction": "Summarize the main topics of discussion, key arguments, and important insights.",
+      "title": "Diskusjonshøydepunkter",
+      "instruction": "Oppsummer de viktigste diskusjonstemaene, sentrale argumenter og viktige innsikter.",
       "format": "paragraph"
     }
   ]

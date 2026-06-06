@@ -69,6 +69,22 @@ mod tests {
     }
 
     #[test]
+    fn test_standard_meeting_is_norwegian() {
+        let t: crate::summary::templates::types::Template =
+            serde_json::from_str(STANDARD_MEETING).expect("standard_meeting.json must deserialize");
+        t.validate().expect("standard_meeting template must validate");
+        assert_eq!(t.name, "Standard møtereferat");
+    }
+
+    #[test]
+    fn test_daily_standup_is_norwegian() {
+        let t: crate::summary::templates::types::Template =
+            serde_json::from_str(DAILY_STANDUP).expect("daily_standup.json must deserialize");
+        t.validate().expect("daily_standup template must validate");
+        assert_eq!(t.name, "Daglig standup");
+    }
+
+    #[test]
     fn test_motereferat_template_registered() {
         assert!(get_builtin_template("motereferat").is_some());
         assert!(list_builtin_template_ids().contains(&"motereferat"));

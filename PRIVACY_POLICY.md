@@ -1,127 +1,57 @@
-# Meetily Privacy Policy
+# Personvern / Privacy Policy — Referat
 
-*Last updated: [Current Date]*
-
-## Our Privacy-First Commitment
-
-Meetily is built on the principle that your meeting data should remain private and under your control. This privacy policy explains how we handle data in our open-source meeting assistant.
-
-## Data Processing Philosophy
-
-### Local-First Processing
-- **Meeting transcription**: Processed entirely on your device using local Whisper models
-- **Audio recordings**: Never transmitted to external servers
-- **Meeting content**: Remains on your infrastructure
-- **AI summaries**: Generated locally or through your chosen LLM provider
-
-### Your Data Ownership
-- You own all meeting data, transcripts, and recordings
-- Data is stored locally on your device
-- No vendor lock-in - export your data anytime
-- Complete control over data retention and deletion
-
-## Usage Analytics
-
-### What We Collect
-Usage analytics is optional and off by default. When you choose to enable it, Meetily collects minimal, anonymized usage data:
-
-**Application Usage:**
-- Feature usage patterns (which tools you use most)
-- Session duration and frequency
-- Performance metrics (transcription success rates, error frequencies)
-- UI interaction patterns (button clicks, navigation flows)
-
-**Technical Metrics:**
-- Application version and platform information
-- Error logs and crash reports (anonymized)
-- Performance benchmarks (processing times, resource usage)
-
-### What We DON'T Collect
-We never collect:
-- ❌ Meeting content, transcripts, or recordings
-- ❌ Personal information or identifiable data
-- ❌ File names, meeting titles, or metadata
-- ❌ Audio data or voice patterns
-- ❌ Participant names or contact information
-- ❌ LLM conversations or AI-generated content
-
-### Why We Collect This Data
-When enabled, analytics helps us with:
-- **Product Quality**: Identifying and fixing bugs that impact user experience
-- **Performance Optimization**: Understanding resource usage and system bottlenecks
-- **Security**: Detecting potential security issues and vulnerabilities
-- **Feature Development**: Making data-driven decisions about new features
-- **Open Source Sustainability**: Ensuring the project meets user needs effectively
-
-### Analytics Implementation
-- **Provider**: PostHog (privacy-focused analytics platform)
-- **Default**: Off by default; analytics starts only after you enable it in settings
-- **Anonymization**: All data linked to generated user IDs only - no personal identification
-- **Data retention**: 12 months maximum, then automatically deleted
-- **Encryption**: All data encrypted in transit using industry-standard protocols
-- **Location**: Data processed in accordance with PostHog's privacy policy
-- **Access Control**: Strictly limited to core development team members
-
-## Third-Party Services
-
-### LLM Providers (Optional)
-If you choose to use external LLM providers:
-- **Anthropic Claude**: Subject to Anthropic's privacy policy
-- **Groq**: Subject to Groq's privacy policy
-- **Local Ollama**: Processed entirely on your device
-
-### Analytics Service (Optional)
-- **PostHog**: Used for usage analytics when enabled
-- **Data**: Only anonymized usage patterns, no meeting content
-- **Control**: Completely optional, off by default, and user-controlled
-
-## Your Privacy Rights
-
-### Data Control
-- **Access**: View all data stored locally on your device
-- **Export**: Export your data in standard formats
-- **Delete**: Remove all data from your device
-
-
-### Analytics Transparency
-- **Open source**: Full analytics implementation available for review in our source code
-- **Opt-in**: New and existing installs have analytics disabled until you turn it on
-- **Questions**: Contact us for any analytics-related concerns
-
-## Data Security
-
-### Local Security
-- Data encrypted at rest using your device's security features
-- No transmission of sensitive meeting data
-- Standard file system permissions protect your data
-
-### Open Source Transparency
-- Full source code available for security review
-- Community-audited privacy implementations
-- No hidden data collection or tracking
-
-## Changes to This Policy
-
-We will notify users of any material changes to this privacy policy through:
-- Updates to this document in our GitHub repository
-- Release notes for application updates
-- In-app notifications for significant privacy changes
-
-## Contact Us
-
-For privacy-related questions or concerns:
-- **GitHub Issues**: [Create an issue](https://github.com/Zackriya-Solutions/meeting-minutes/issues)
-- **Email**: [Contact form](https://www.zackriya.com/service-interest-form/)
-- **Community**: [Discord](https://discord.gg/crRymMQBFH)
-
-## Open Source Commitment
-
-As an open-source project under MIT license, you can:
-- Review our complete privacy implementation
-- Modify data handling to meet your requirements
-- Deploy entirely on your own infrastructure
-- Contribute to privacy improvements
+*Sist oppdatert / Last updated: 2026-06-06*
 
 ---
 
-*This privacy policy applies to Meetily v0.0.5 and later versions. For enterprise deployments, additional privacy controls may be available.*
+## Norsk
+
+### Null telemetri. Null analyse. Alt lokalt.
+
+Referat er bygget på ett enkelt prinsipp: møtedataene dine er dine, og de skal forbli på din Mac.
+
+**Hva samles inn?**
+Ingenting. Referat har ingen analytics, ingen telemetri og ingen datasporing. PostHog og all annen sporingsinfrastruktur er fullstendig fjernet fra kildekoden.
+
+**Hva forlater Macen din?**
+
+To ting kan eventuelt gå ut — begge er eksplisitte og brukerstyrte:
+
+1. **Modellnedlastinger.** Første gang du bruker Referat, lastes transkripsjonsmotoren (NB-Whisper) ned fra Hugging Face / Nasjonalbiblioteket. Dette er en engangsoperasjon. Ingen møtedata sendes — bare en HTTP-forespørsel om å hente en modellfil.
+
+2. **Valgfri ekstern AI-kobling (BYOK).** Hvis du selv legger inn en API-nøkkel for Claude, OpenAI eller lignende i Innstillinger, sendes sammendrags-forespørsler til den aktuelle leverandørens API. Da gjelder leverandørens egne vilkår og personvernerklæring. Transkripsjonen skjer alltid lokalt uansett.
+
+Alt annet — opptak, transkripsjoner, referater, møtehistorikk — lagres utelukkende lokalt på din maskin og forlater aldri Macen din uten din eksplisitte handling.
+
+**Kontakt**
+Spørsmål? Åpne en sak på [github.com/ivaragentik/referat](https://github.com/ivaragentik/referat/issues) eller skriv til oss via [agentik.no](https://agentik.no).
+
+---
+
+## English
+
+### Zero telemetry. Zero analytics. All local.
+
+Referat is built on a simple principle: your meeting data is yours, and it stays on your Mac.
+
+**What is collected?**
+Nothing. Referat has no analytics, no telemetry, and no data tracking. PostHog and all other tracking infrastructure have been fully removed from the source code.
+
+**What leaves your Mac?**
+
+Two things may leave your Mac — both are explicit and user-controlled:
+
+1. **Model downloads.** The first time you use Referat, the transcription engine (NB-Whisper) is downloaded from Hugging Face / the National Library of Norway. This is a one-time operation. No meeting data is sent — only an HTTP request to fetch a model file.
+
+2. **Optional external AI connection (BYOK).** If you add an API key for Claude, OpenAI, or a similar service in Settings, summary requests are sent to that provider's API. The provider's own terms and privacy policy then apply. Transcription always happens locally regardless.
+
+Everything else — recordings, transcripts, meeting notes, meeting history — is stored exclusively on your machine and never leaves your Mac without your explicit action.
+
+**Contact**
+Questions? Open an issue at [github.com/ivaragentik/referat](https://github.com/ivaragentik/referat/issues) or reach us via [agentik.no](https://agentik.no).
+
+---
+
+*Referat er åpen kildekode under MIT-lisensen. Du kan selv inspisere all datahåndtering i kildekoden.*
+
+*Referat is open source under the MIT licence. You can inspect all data handling in the source code yourself.*

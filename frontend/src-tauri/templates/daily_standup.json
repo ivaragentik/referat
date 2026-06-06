@@ -1,38 +1,38 @@
 {
-  "name": "Daily Standup",
-  "description": "Time-boxed daily updates for engineering/product teams.",
+  "name": "Daglig standup",
+  "description": "Tidsavgrenset daglig statusoppdatering for ingeniør- og produktteam.",
   "sections": [
     {
-      "title": "Date",
-      "instruction": "YYYY-MM-DD",
+      "title": "Dato",
+      "instruction": "ÅÅÅÅ-MM-DD",
       "format": "string"
     },
     {
-      "title": "Attendees",
-      "instruction": "List of participants present",
+      "title": "Deltakere",
+      "instruction": "Liste over deltakere som er til stede",
       "format": "list"
     },
     {
-      "title": "Yesterday",
-      "instruction": "What I completed yesterday (short bullets)",
+      "title": "I går",
+      "instruction": "Hva jeg fullførte i går (korte punkter)",
       "format": "list",
-      "example_item_format": "| **Owner** | **Completed Work** |\n| --- | --- |"
+      "example_item_format": "| **Ansvarlig** | **Utført arbeid** |\n| --- | --- |"
     },
     {
-      "title": "Today",
-      "instruction": "Planned work for today (short bullets)",
+      "title": "I dag",
+      "instruction": "Planlagt arbeid for i dag (korte punkter)",
       "format": "list",
-      "example_item_format": "| **Owner** | **Planned Work** |\n| --- | --- |"
+      "example_item_format": "| **Ansvarlig** | **Planlagt arbeid** |\n| --- | --- |"
     },
     {
-      "title": "Blockers",
-      "instruction": "Any impediments and owner if known",
+      "title": "Hindringer",
+      "instruction": "Eventuelle hindringer og ansvarsperson hvis kjent",
       "format": "list",
-      "item_format": "| **Owner** | **Blocker** | Impact |\n| --- | --- | --- |"
+      "item_format": "| **Ansvarlig** | **Hindring** | Konsekvens |\n| --- | --- | --- |"
     },
     {
-      "title": "Notes",
-      "instruction": "Optional quick notes or announcements",
+      "title": "Notater",
+      "instruction": "Valgfrie korte notater eller kunngjøringer",
       "format": "paragraph"
     }
   ]

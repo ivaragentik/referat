@@ -233,7 +233,7 @@ export function useDownloadProgressToast() {
 
       const downloadData: DownloadProgress = {
         modelName,
-        displayName: 'Transcription Model (Parakeet)',
+        displayName: 'Transkripsjonsmotor',
         progress,
         downloadedMb: downloaded_mb ?? 0,
         totalMb: total_mb ?? 670,
@@ -260,7 +260,7 @@ export function useDownloadProgressToast() {
         const { modelName } = event.payload;
         const downloadData: DownloadProgress = {
           modelName,
-          displayName: 'Transcription Model (Parakeet)',
+          displayName: 'Transkripsjonsmotor',
           progress: 100,
           downloadedMb: 670,
           totalMb: 670,
@@ -279,7 +279,7 @@ export function useDownloadProgressToast() {
         const { modelName, error } = event.payload;
         const downloadData: DownloadProgress = {
           modelName,
-          displayName: 'Transcription Model (Parakeet)',
+          displayName: 'Transkripsjonsmotor',
           progress: 0,
           downloadedMb: 0,
           totalMb: 670,
@@ -315,7 +315,7 @@ export function useDownloadProgressToast() {
 
       const downloadData: DownloadProgress = {
         modelName: model,
-        displayName: `Summary Model (${model})`,
+        displayName: 'Sammendragsmotor',
         progress: progress ?? 0,
         downloadedMb: downloaded_mb ?? 0,
         totalMb: getDownloadTotalMb(total_mb, model),

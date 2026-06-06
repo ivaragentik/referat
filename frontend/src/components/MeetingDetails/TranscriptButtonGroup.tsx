@@ -77,7 +77,7 @@ export function TranscriptButtonGroup({
               Analytics.trackButtonClick('enhance_transcript', 'meeting_details');
               setShowRetranscribeDialog(true);
             }}
-            title="Transkribert på nytt for å forbedre det innspilte lyden"
+            title="Transkriber på nytt for å forbedre kvaliteten på opptaket"
           >
             <RefreshCw className="xl:mr-2" size={18} />
             <span className="hidden lg:inline">Forbedre</span>

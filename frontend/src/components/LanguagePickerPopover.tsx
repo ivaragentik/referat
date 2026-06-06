@@ -168,7 +168,7 @@ export function LanguagePickerPopover({
         ))}
 
         {hasNoResults && (
-          <div className="px-3 py-2 text-sm text-gray-400">No matches</div>
+          <div className="px-3 py-2 text-sm text-gray-400">Ingen treff</div>
         )}
       </div>
     </div>

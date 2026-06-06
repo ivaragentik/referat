@@ -9,6 +9,10 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSummaryModelSizeLabel, getSummaryModelSizeMb } from '@/lib/onboarding-summary-model';
 import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
+import { MODEL_CONFIGS } from '@/lib/whisper';
+
+const DEFAULT_WHISPER_MODEL_SIZE_MB =
+  MODEL_CONFIGS[DEFAULT_WHISPER_MODEL]?.size_mb ?? 1031;
 
 type DownloadStatus = 'waiting' | 'downloading' | 'completed' | 'error';
 
@@ -41,7 +45,7 @@ export function DownloadProgressStep() {
     status: parakeetDownloaded ? 'completed' : 'waiting',
     progress: parakeetDownloaded ? 100 : 0,
     downloadedMb: 0,
-    totalMb: 670,
+    totalMb: DEFAULT_WHISPER_MODEL_SIZE_MB,
     speedMbps: 0,
   });
 
@@ -485,7 +489,7 @@ export function DownloadProgressStep() {
             'Transkripsjonsmotoren',
             <Mic className="w-5 h-5 text-gray-600" />,
             whisperState,
-            '~670 MB'
+            `~${DEFAULT_WHISPER_MODEL_SIZE_MB} MB`
           )}
 
           {renderDownloadCard(

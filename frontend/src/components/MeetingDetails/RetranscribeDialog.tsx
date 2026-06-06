@@ -355,7 +355,7 @@ export function RetranscribeDialog({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Velg en transkripsjonmodell
+                Velg en transkripsjonsmodell
               </p>
             </div>
           )}

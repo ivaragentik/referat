@@ -53,6 +53,43 @@ pub enum ModelStatus {
     Corrupted { file_size: u64, expected_min_size: u64 },
 }
 
+/// Rich progress payload emitted during model download.
+/// Mirrors `parakeet_engine::DownloadProgress` so the frontend listener
+/// can render bytes and speed regardless of which engine is downloading.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WhisperDownloadProgress {
+    /// Bytes downloaded so far
+    pub downloaded_bytes: u64,
+    /// Total file size in bytes (0 if unknown)
+    pub total_bytes: u64,
+    /// Downloaded in MB (for display)
+    pub downloaded_mb: f64,
+    /// Total size in MB (for display)
+    pub total_mb: f64,
+    /// Download speed in MB/s
+    pub speed_mbps: f64,
+    /// Percentage complete (0-100)
+    pub percent: u8,
+}
+
+impl WhisperDownloadProgress {
+    pub fn new(downloaded: u64, total: u64, speed_mbps: f64) -> Self {
+        let percent = if total > 0 {
+            ((downloaded as f64 / total as f64) * 100.0).min(100.0) as u8
+        } else {
+            0
+        };
+        Self {
+            downloaded_bytes: downloaded,
+            total_bytes: total,
+            downloaded_mb: downloaded as f64 / (1024.0 * 1024.0),
+            total_mb: total as f64 / (1024.0 * 1024.0),
+            speed_mbps,
+            percent,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelInfo {
     pub name: String,
@@ -925,7 +962,7 @@ impl WhisperEngine {
         }
     }
     
-    pub async fn download_model(&self, model_name: &str, progress_callback: Option<Box<dyn Fn(u8) + Send>>) -> Result<()> {
+    pub async fn download_model(&self, model_name: &str, progress_callback: Option<Box<dyn Fn(WhisperDownloadProgress) + Send>>) -> Result<()> {
         log::info!("Starting download for model: {}", model_name);
 
         // Check if download is already in progress for this model
@@ -974,7 +1011,7 @@ impl WhisperEngine {
         &self,
         model_name: &str,
         model_url: &'static str,
-        progress_callback: Option<Box<dyn Fn(u8) + Send>>,
+        progress_callback: Option<Box<dyn Fn(WhisperDownloadProgress) + Send>>,
     ) -> Result<()> {
         // Clear any previous cancellation flag for this model
         {
@@ -1037,10 +1074,11 @@ impl WhisperEngine {
         let mut downloaded = 0u64;
         let mut last_progress_report = 0u8;
         let mut last_report_time = std::time::Instant::now();
+        let download_start_time = std::time::Instant::now();
 
         // Emit initial 0% progress immediately
         if let Some(ref callback) = progress_callback {
-            callback(0);
+            callback(WhisperDownloadProgress::new(0, total_size, 0.0));
         }
 
         while let Some(chunk_result) = stream.next().await {
@@ -1068,13 +1106,18 @@ impl WhisperEngine {
                 0
             };
 
+            // Calculate speed in MB/s
+            let elapsed_secs = download_start_time.elapsed().as_secs_f64().max(0.001);
+            let speed_mbps = (downloaded as f64 / (1024.0 * 1024.0)) / elapsed_secs;
+
             // Report progress every 1% or every 2 seconds for better UI responsiveness
             let time_since_last_report = last_report_time.elapsed().as_secs();
             if progress >= last_progress_report + 1 || progress == 100 || time_since_last_report >= 2 {
-                log::info!("Download progress: {}% ({:.1} MB / {:.1} MB)",
+                log::info!("Download progress: {}% ({:.1} MB / {:.1} MB, {:.1} MB/s)",
                          progress,
                          downloaded as f64 / (1024.0 * 1024.0),
-                         total_size as f64 / (1024.0 * 1024.0));
+                         total_size as f64 / (1024.0 * 1024.0),
+                         speed_mbps);
 
                 // Update progress in model info
                 {
@@ -1084,9 +1127,9 @@ impl WhisperEngine {
                     }
                 }
 
-                // Call progress callback
+                // Call progress callback with rich payload
                 if let Some(ref callback) = progress_callback {
-                    callback(progress);
+                    callback(WhisperDownloadProgress::new(downloaded, total_size, speed_mbps));
                 }
 
                 last_progress_report = progress;
@@ -1104,8 +1147,11 @@ impl WhisperEngine {
             }
         }
 
+        let final_elapsed = download_start_time.elapsed().as_secs_f64().max(0.001);
+        let final_speed = (downloaded as f64 / (1024.0 * 1024.0)) / final_elapsed;
+
         if let Some(ref callback) = progress_callback {
-            callback(100);
+            callback(WhisperDownloadProgress::new(downloaded, total_size, final_speed));
         }
 
         file.flush().await

@@ -18,7 +18,6 @@ export function useTemplates() {
         name: string;
         description: string;
       }>;
-      console.log('Available templates:', templates);
       setAvailableTemplates(templates);
     } catch (error) {
       console.error('Failed to fetch templates:', error);

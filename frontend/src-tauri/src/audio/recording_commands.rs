@@ -220,7 +220,7 @@ pub async fn start_recording_with_meeting_name<R: Runtime>(
         // Example: Meeting 2025-10-03_08-25-23
         let now = chrono::Local::now();
         format!(
-            "Meeting {}",
+            "Møte {}",
             now.format("%Y-%m-%d_%H-%M-%S")
         )
     });
@@ -391,7 +391,7 @@ pub async fn start_recording_with_devices_and_meeting<R: Runtime>(
     let effective_meeting_name = meeting_name.clone().unwrap_or_else(|| {
         let now = chrono::Local::now();
         format!(
-            "Meeting {}",
+            "Møte {}",
             now.format("%Y-%m-%d_%H-%M-%S")
         )
     });

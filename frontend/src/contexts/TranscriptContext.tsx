@@ -106,7 +106,7 @@ export function TranscriptProvider({ children }: { children: ReactNode }) {
             const meetingName = await recordingService.getRecordingMeetingName();
 
             // Use a better fallback that matches the backend's naming pattern
-            const effectiveTitle = meetingName || `Meeting ${new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-')}`;
+            const effectiveTitle = meetingName || `Møte ${new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-')}`;
 
             // Initialize meeting metadata in IndexedDB
             await indexedDBService.saveMeetingMetadata({
