@@ -64,9 +64,9 @@ use tokio::sync::RwLock;
 
 static RECORDING_FLAG: AtomicBool = AtomicBool::new(false);
 
-// Global language preference storage (default to "auto-translate" for automatic translation to English)
+// Global language preference storage (default to "no" for Norwegian Bokmål — Norwegian-first fork)
 static LANGUAGE_PREFERENCE: std::sync::LazyLock<StdMutex<String>> =
-    std::sync::LazyLock::new(|| StdMutex::new("auto-translate".to_string()));
+    std::sync::LazyLock::new(|| StdMutex::new("no".to_string()));
 
 #[derive(Debug, Deserialize)]
 struct RecordingArgs {
@@ -783,4 +783,22 @@ pub fn run() {
                 _ => {}
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_language_preference_is_norwegian() {
+        // The static is initialised lazily; reading it here forces initialisation.
+        // This verifies the Norwegian-first default has not been accidentally reverted.
+        let lang = get_language_preference_internal();
+        assert_eq!(
+            lang,
+            Some("no".to_string()),
+            "Default language preference must be 'no' (Norwegian Bokmål), not '{:?}'",
+            lang
+        );
+    }
 }

@@ -137,13 +137,13 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     systemDevice: null
   });
 
-  // Language preference state
+  // Language preference state (default 'no' = Norwegian Bokmål for Norwegian-first fork)
   const [selectedLanguage, setSelectedLanguage] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('primaryLanguage');
-      return saved || 'auto';
+      return saved || 'no';
     }
-    return 'auto';
+    return 'no';
   });
 
   // UI preferences state
