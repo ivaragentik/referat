@@ -13,6 +13,37 @@ use tokio::io::AsyncWriteExt;
 use crate::config::WHISPER_MODEL_CATALOG;
 use super::acceleration::{whisper_context_acceleration_for, WhisperCompiledBackend};
 
+/// Resolve the download URL for a model in WHISPER_MODEL_CATALOG.
+/// Standard models come from ggerganov/whisper.cpp on Hugging Face;
+/// NB-Whisper Norwegian models come from NbAiLab (Nasjonalbiblioteket).
+pub(crate) fn model_download_url(model_name: &str) -> Option<&'static str> {
+    match model_name {
+        // Standard f16 models
+        "tiny" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"),
+        "base" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"),
+        "small" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"),
+        "medium" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin"),
+        "large-v3-turbo" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin"),
+        "large-v3" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin"),
+
+        // Q5_1 quantized models
+        "tiny-q5_1" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny-q5_1.bin"),
+        "base-q5_1" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base-q5_1.bin"),
+        "small-q5_1" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin"),
+
+        // Q5_0 quantized models
+        "medium-q5_0" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-q5_0.bin"),
+        "large-v3-turbo-q5_0" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin"),
+        "large-v3-q5_0" => Some("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin"),
+
+        // NB-Whisper — Norwegian Bokmål (NbAiLab / Nasjonalbiblioteket)
+        "nb-whisper-large-q5_0" => Some("https://huggingface.co/NbAiLab/nb-whisper-large/resolve/main/ggml-model-q5_0.bin"),
+        "nb-whisper-medium-q5_0" => Some("https://huggingface.co/NbAiLab/nb-whisper-medium/resolve/main/ggml-model-q5_0.bin"),
+
+        _ => None,
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ModelStatus {
     Available,
@@ -918,28 +949,8 @@ impl WhisperEngine {
             *cancel_flag = None;
         }
 
-        // Official ggerganov/whisper.cpp model URLs from Hugging Face
-        let model_url = match model_name {
-            // Standard f16 models
-            "tiny" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin",
-            "base" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
-            "small" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin",
-            "medium" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin",
-            "large-v3-turbo" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin",
-            "large-v3" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin",
-
-            // Q5_1 quantized models
-            "tiny-q5_1" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny-q5_1.bin",
-            "base-q5_1" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base-q5_1.bin",
-            "small-q5_1" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin",
-
-            // Q5_0 quantized models
-            "medium-q5_0" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-q5_0.bin",
-            "large-v3-turbo-q5_0" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin",
-            "large-v3-q5_0" => "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin",
-
-            _ => return Err(anyhow!("Unsupported model: {}", model_name))
-        };
+        let model_url = model_download_url(model_name)
+            .ok_or_else(|| anyhow!("Unsupported model: {}", model_name))?;
         
         log::info!("Model URL for {}: {}", model_name, model_url);
         
@@ -1133,5 +1144,37 @@ impl WhisperEngine {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod url_tests {
+    use super::*;
+    use crate::config::WHISPER_MODEL_CATALOG;
+
+    #[test]
+    fn test_every_catalog_model_has_download_url() {
+        for entry in WHISPER_MODEL_CATALOG {
+            assert!(
+                model_download_url(entry.0).is_some(),
+                "no download URL for catalog model '{}'",
+                entry.0
+            );
+        }
+    }
+
+    #[test]
+    fn test_nb_whisper_urls_point_to_nbailab() {
+        assert!(model_download_url("nb-whisper-large-q5_0")
+            .unwrap()
+            .contains("NbAiLab/nb-whisper-large"));
+        assert!(model_download_url("nb-whisper-medium-q5_0")
+            .unwrap()
+            .contains("NbAiLab/nb-whisper-medium"));
+    }
+
+    #[test]
+    fn test_unknown_model_has_no_url() {
+        assert!(model_download_url("granola-9000").is_none());
     }
 }
