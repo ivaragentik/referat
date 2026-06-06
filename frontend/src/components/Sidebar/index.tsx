@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { useRecordingState } from '@/contexts/RecordingStateContext';
 import { useImportDialog } from '@/contexts/ImportDialogContext';
 import { useConfig } from '@/contexts/ConfigContext';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 
 import {
   Dialog,
@@ -72,8 +73,8 @@ const Sidebar: React.FC = () => {
     ollamaEndpoint: null
   });
   const [transcriptModelConfig, setTranscriptModelConfig] = useState<TranscriptModelProps>({
-    provider: 'parakeet',
-    model: 'parakeet-tdt-0.6b-v3-int8',
+    provider: 'localWhisper',
+    model: DEFAULT_WHISPER_MODEL,
   });
   const [settingsSaveSuccess, setSettingsSaveSuccess] = useState<boolean | null>(null);
 
