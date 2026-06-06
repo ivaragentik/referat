@@ -163,7 +163,7 @@ export function PreferenceSettings() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Lagringsplasseringer</h3>
         <p className="text-sm text-gray-600 mb-6">
-          Se og åpne mappene der Knutsen Notes lagrer dataene dine
+          Se og åpne mappene der Referat lagrer dataene dine
         </p>
 
         <div className="space-y-4">

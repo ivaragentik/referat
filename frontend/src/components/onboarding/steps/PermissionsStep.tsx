@@ -114,7 +114,7 @@ export function PermissionsStep() {
   return (
     <OnboardingContainer
       title="Gi tillatelser"
-      description="Knutsen Notes trenger tilgang til mikrofon og systemlyd for å ta opp møter"
+      description="Referat trenger tilgang til mikrofon og systemlyd for å ta opp møter"
       step={4}
       hideProgress={true}
       showNavigation={allPermissionsGranted}

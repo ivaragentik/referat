@@ -24,8 +24,8 @@ export function WelcomeStep() {
 
   return (
     <OnboardingContainer
-      title="Velkommen til Knutsen Notes"
-      description="Knutsen Notes transkriberer møtene dine på norsk — helt på din Mac."
+      title="Velkommen til Referat"
+      description="Referat transkriberer møtene dine på norsk — helt på din Mac."
       step={1}
       hideProgress={true}
     >

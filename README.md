@@ -1,12 +1,14 @@
 <div align="center">
 
-# Knutsen Notes
+# Referat — av Agentik
+
+### «Referat skriver referatet.»
 
 ### «Ingen bot. Ingen sky. Ingen regning.»
 
 *No bot. No cloud. No bill.*
 
-**Knutsen Notes** er et gratis, åpen kildekode møtenotat-verktøy for macOS, spesialbygd for norsk tale. Det lytter til møtet ditt — enten du er på Zoom, Teams, Meet eller i samme rom som kollegene — og leverer en presis transkripsjon uten at en eneste lyd forlater Macen din.
+**Referat** er et gratis, åpen kildekode møtenotat-verktøy for macOS, spesialbygd for norsk tale. Det lytter til møtet ditt — enten du er på Zoom, Teams, Meet eller i samme rom som kollegene — og leverer en presis transkripsjon uten at en eneste lyd forlater Macen din.
 
 <!-- TODO: screenshot — erstatt dette med faktisk skjermbilde av appen -->
 
@@ -21,13 +23,13 @@
 
 ---
 
-## Hvorfor Knutsen Notes?
+## Hvorfor Referat?
 
 - **Norsk transkripsjon i verdensklasse.** Vi bruker [NB-Whisper](https://huggingface.co/NbAiLab/nb-whisper-large) fra Nasjonalbiblioteket — trent på 66 000 timer norsk tale. Ordfeiltakten er ~2 % på bokmål, mot ~15 % for standard Whisper. Bokmål, nynorsk og engelsk støttes ut av boksen.
 
-- **Ingen bot i møtet.** Knutsen Notes fanger opp lyd direkte fra mikrofonen og systemlyden på Macen din via Core Audio. Deltakerne ser ingenting, og du trenger ikke å gi tilgang til møteplattformens API. Fungerer like godt i fysiske møterom.
+- **Ingen bot i møtet.** Referat fanger opp lyd direkte fra mikrofonen og systemlyden på Macen din via Core Audio. Deltakerne ser ingenting, og du trenger ikke å gi tilgang til møteplattformens API. Fungerer like godt i fysiske møterom.
 
-- **Alt lokalt — GDPR-vennlig by design.** Transkripsjoner og opptak lagres i `~/Library/Application Support/no.knutsen.notes/` (SQLite). Ingenting sendes til skyen med mindre du selv velger å koble til en ekstern AI for sammendrag. Du eier dataene dine, bokstavelig talt.
+- **Alt lokalt — GDPR-vennlig by design.** Transkripsjoner og opptak lagres i `~/Library/Application Support/no.agentik.referat/` (SQLite). Ingenting sendes til skyen med mindre du selv velger å koble til en ekstern AI for sammendrag. Du eier dataene dine, bokstavelig talt.
 
 ---
 
@@ -35,9 +37,9 @@
 
 > Stupidly simple. Seks steg fra null til transkripsjon.
 
-1. **Last ned appen.** Gå til [Releases](https://github.com/iaknutsen/knutsen-notes/releases) <!-- TODO: oppdater lenke når releases er satt opp --> og last ned `.dmg`-filen.
+1. **Last ned appen.** Gå til [Releases](https://github.com/iaknutsen/referat/releases) <!-- TODO: oppdater lenke når releases er satt opp --> og last ned `.dmg`-filen.
 
-2. **Installer.** Åpne `.dmg`, dra **Knutsen Notes** til Programmer-mappen.
+2. **Installer.** Åpne `.dmg`, dra **Referat** til Programmer-mappen.
 
 3. **Første oppstart — høyreklikk → Åpne.** Appen er ikke signert av Apple ennå (se [veikart](#veikart)). Dobbeltklikk vil bli blokkert av Gatekeeper. Høyreklikk på ikonet → «Åpne» → bekreft i dialogen. Du gjør dette kun én gang.
 
@@ -58,7 +60,7 @@ macOS Core Audio (ingen bot nødvendig)
         ↓
 whisper.cpp + NB-Whisper (kjører lokalt på din Mac)
         ↓
-SQLite  (~Library/Application Support/no.knutsen.notes/)
+SQLite  (~Library/Application Support/no.agentik.referat/)
         ↓
 (Valgfritt) lokalt sammendrag via innebygd liten LLM
            — eller din egen API-nøkkel for Claude / OpenAI
@@ -71,7 +73,7 @@ Alt skjer på din maskin. Appen har ingen utgående nettverksforbindelser med mi
 ## Ofte stilte spørsmål
 
 **Er det virkelig gratis?**
-Ja. Knutsen Notes er MIT-lisensiert og åpen kildekode. Transkripsjonskmodellene er offentlig finansiert (Nasjonalbiblioteket), og det er Macen din som gjør jobben. Det koster ingenting å kjøre.
+Ja. Referat er MIT-lisensiert og åpen kildekode. Transkripsjonskmodellene er offentlig finansiert (Nasjonalbiblioteket), og det er Macen din som gjør jobben. Det koster ingenting å kjøre.
 
 **Hva sendes til skyen?**
 Ingenting — med mindre du selv legger inn en ekstern API-nøkkel (Claude, OpenAI e.l.) for sammendrag. Transkripsjonen skjer alltid lokalt uansett.
@@ -86,7 +88,7 @@ Ikke ennå. Se [veikart](#veikart).
 
 ## Følgesvenn: meetily-mcp
 
-Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møtene dine, er på vei til denne repo-familien. Hold øye med [releases](https://github.com/iaknutsen/knutsen-notes/releases). <!-- TODO: oppdater lenke -->
+Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møtene dine, er på vei til denne repo-familien. Hold øye med [releases](https://github.com/iaknutsen/referat/releases). <!-- TODO: oppdater lenke -->
 
 ---
 
@@ -94,18 +96,18 @@ Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møte
 
 ## English
 
-### Knutsen Notes — meeting notes for Norwegian speakers
+### Referat — meeting notes for Norwegian speakers, by Agentik
 
-**Knutsen Notes** is a free, open-source (MIT) macOS meeting note-taker built for Norwegian. It captures microphone and system audio directly via Core Audio — no bot joins your call — and transcribes entirely on your Mac using [NB-Whisper](https://huggingface.co/NbAiLab/nb-whisper-large), the National Library of Norway's fine-tuned Whisper model (~2% WER on Bokmål vs ~15% for stock Whisper). Bokmål, Nynorsk, and English are all supported.
+**Referat** is a free, open-source (MIT) macOS meeting note-taker built for Norwegian. It captures microphone and system audio directly via Core Audio — no bot joins your call — and transcribes entirely on your Mac using [NB-Whisper](https://huggingface.co/NbAiLab/nb-whisper-large), the National Library of Norway's fine-tuned Whisper model (~2% WER on Bokmål vs ~15% for stock Whisper). Bokmål, Nynorsk, and English are all supported.
 
-Transcripts and recordings are stored locally in SQLite (`~/Library/Application Support/no.knutsen.notes/`). Nothing leaves your Mac unless you opt in to an external API for summaries. Local summarisation via a bundled small LLM is also available with no API key required.
+Transcripts and recordings are stored locally in SQLite (`~/Library/Application Support/no.agentik.referat/`). Nothing leaves your Mac unless you opt in to an external API for summaries. Local summarisation via a bundled small LLM is also available with no API key required.
 
 <!-- TODO: screenshot placeholder -->
 
 ### Quick start (English)
 
-1. Download the `.dmg` from [Releases](https://github.com/iaknutsen/knutsen-notes/releases) <!-- TODO: update link -->
-2. Drag **Knutsen Notes** to Applications
+1. Download the `.dmg` from [Releases](https://github.com/iaknutsen/referat/releases) <!-- TODO: update link -->
+2. Drag **Referat** to Applications
 3. **First launch: right-click → Open** (the app is unsigned — see [Roadmap](#roadmap))
 4. Grant microphone and screen recording permissions
 5. Download the transcription model (~1 GB, one-time)
@@ -139,8 +141,8 @@ Mic + system audio → Core Audio → whisper.cpp (NB-Whisper, local) → SQLite
 ### Build
 
 ```bash
-git clone https://github.com/iaknutsen/knutsen-notes  # TODO: update URL
-cd knutsen-notes/frontend
+git clone https://github.com/iaknutsen/referat
+cd referat/frontend
 pnpm install
 pnpm run tauri:build
 ```
@@ -168,7 +170,7 @@ See [`docs/BUILDING.md`](docs/BUILDING.md) for full build options including CPU-
 
 ## Takk og anerkjennelse / Credits & License
 
-Knutsen Notes er lisensiert under **MIT**. Se [`LICENSE.md`](LICENSE.md).
+Referat er lisensiert under **MIT**. Se [`LICENSE.md`](LICENSE.md).
 
 This project is a Norwegian-language fork of **[Meetily v0.4.0](https://github.com/Zackriya-Solutions/meetily)** by [Zackriya Solutions](https://github.com/Zackriya-Solutions). Meetily is the upstream foundation — the audio pipeline, Tauri architecture, and core application structure all originate there. Full attribution in [`docs/ATTRIBUTION.md`](docs/ATTRIBUTION.md).
 
@@ -180,8 +182,6 @@ This project is a Norwegian-language fork of **[Meetily v0.4.0](https://github.c
 
 <div align="center">
 
-Laget av [Ivar Knutsen](https://github.com/TODO) <!-- TODO: oppdater GitHub-lenke -->
-<br>
-Bygget av et AI-byrå i Norge — [knutsen.ai](https://knutsen.ai) <!-- TODO: verifiser/oppdater lenke -->
+Laget av [Agentik](https://github.com/iaknutsen/referat)
 
 </div>

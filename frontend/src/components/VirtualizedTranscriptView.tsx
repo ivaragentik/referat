@@ -257,7 +257,7 @@ export const VirtualizedTranscriptView: React.FC<VirtualizedTranscriptViewProps>
                         </>
                     ) : (
                         <>
-                            <p className="text-lg font-semibold">Velkommen til Knutsen Notes!</p>
+                            <p className="text-lg font-semibold">Velkommen til Referat!</p>
                             <p className="text-xs mt-1">Start et opptak for å se direktetranskripsjon</p>
                         </>
                     )}

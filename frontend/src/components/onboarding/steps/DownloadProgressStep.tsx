@@ -474,7 +474,7 @@ export function DownloadProgressStep() {
   return (
     <OnboardingContainer
       title="Gjør klart"
-      description="Du kan begynne å bruke Knutsen Notes etter at transkripsjonsmotoren er lastet ned."
+      description="Du kan begynne å bruke Referat etter at transkripsjonsmotoren er lastet ned."
       step={3}
       totalSteps={isMac ? 4 : 3}
     >

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Knutsen Notes — app icon generator
-Produces: frontend/src-tauri/icons/knutsen-master-1024.png
+Referat — app icon generator
+Produces: frontend/src-tauri/icons/referat-master-1024.png
 
 Design:
   - 1024×1024 canvas
   - Deep Norwegian blue (#00205B) rounded-square background (superellipse ~22% radius)
   - Subtle vertical gradient (slightly lighter top) for depth
-  - Bold white geometric "K" centered, ~58% of canvas height
-  - Small red (#BA0C2F) filled circle integrated as the dot on the lower-right arm of the K
+  - Bold white geometric "R" centered, ~58% of canvas height
+  - Small red (#BA0C2F) filled circle at the foot/leg terminal of the R
   - No other text, no random decorations
 """
 
@@ -27,7 +27,7 @@ FONT_INDEX = 1  # Bold
 
 OUT_PATH = os.path.join(
     os.path.dirname(__file__),
-    "../src-tauri/icons/knutsen-master-1024.png"
+    "../src-tauri/icons/referat-master-1024.png"
 )
 
 
@@ -75,7 +75,7 @@ def render_icon() -> Image.Image:
 
     draw = ImageDraw.Draw(img)
 
-    # ── 3. "K" letter ────────────────────────────────────────────────────────
+    # ── 3. "R" letter ────────────────────────────────────────────────────────
     # Target: letter height ≈ 58% of SIZE  →  ~593 px
     TARGET_HEIGHT_PX = int(SIZE * 0.58)
 
@@ -83,7 +83,7 @@ def render_icon() -> Image.Image:
     font = ImageFont.truetype(FONT_PATH, size=font_size, index=FONT_INDEX)
 
     # Measure actual bounding box
-    bbox = font.getbbox("K")          # (left, top, right, bottom) relative to origin
+    bbox = font.getbbox("R")          # (left, top, right, bottom) relative to origin
     letter_w = bbox[2] - bbox[0]
     letter_h = bbox[3] - bbox[1]
 
@@ -93,7 +93,7 @@ def render_icon() -> Image.Image:
     font = ImageFont.truetype(FONT_PATH, size=font_size, index=FONT_INDEX)
 
     # Re-measure after scaling
-    bbox = font.getbbox("K")
+    bbox = font.getbbox("R")
     letter_w = bbox[2] - bbox[0]
     letter_h = bbox[3] - bbox[1]
 
@@ -106,29 +106,26 @@ def render_icon() -> Image.Image:
     text_x = cx - bbox[0] - letter_w // 2
     text_y = cy - bbox[1] - letter_h // 2
 
-    # Draw white K
-    draw.text((text_x, text_y), "K", font=font, fill=WHITE)
+    # Draw white R
+    draw.text((text_x, text_y), "R", font=font, fill=WHITE)
 
     # ── 4. Red circle accent ─────────────────────────────────────────────────
-    # The red dot terminates the lower-right arm of the K.
-    # Approximate position: right edge of glyph, at ~75% down the letter height.
-    # We estimate the tip of the lower diagonal arm.
-    #
-    # For Helvetica Neue Bold "K":
-    #   – The right side of the upper arm ends near x = text_x + bbox[2], y ~ 35% letter_h
-    #   – The right side of the lower arm ends near x = text_x + bbox[2], y ~ 90% letter_h
-    # We place the dot at the lower-right tip, radius ~ 3.5% of SIZE
+    # The red dot sits at the foot/leg terminal of the R.
+    # For Helvetica Neue Bold "R":
+    #   – The leg (lower-right diagonal stroke) terminates near the bottom-right
+    #     of the glyph, roughly x ~ rightmost extent, y ~ 95% down the letter
+    # We place the dot at the tip of the leg, radius ~ 3.5% of SIZE
 
     dot_r  = int(SIZE * 0.035)   # ~36 px
 
-    # Lower-right tip of the K's diagonal arm — heuristic for HN Bold
-    # arm tip X: rightmost extent of glyph
-    # arm tip Y: bottom of visible glyph minus a small margin
-    arm_x = text_x + bbox[0] + letter_w          # right edge of glyph
-    arm_y = text_y + bbox[1] + int(letter_h * 0.91)  # ~91% down the letter
+    # Foot of the R's leg — heuristic for HN Bold
+    # leg tip X: near rightmost extent of glyph
+    # leg tip Y: bottom of visible glyph (the leg ends near the baseline)
+    arm_x = text_x + bbox[0] + int(letter_w * 0.97)   # near right edge
+    arm_y = text_y + bbox[1] + int(letter_h * 0.95)    # ~95% down the letter
 
-    # Offset the dot so it sits just outside / at the very tip of the arm
-    dot_cx = arm_x - dot_r // 2
+    # Centre the dot on the leg tip
+    dot_cx = arm_x
     dot_cy = arm_y
 
     dot_bbox = [dot_cx - dot_r, dot_cy - dot_r, dot_cx + dot_r, dot_cy + dot_r]
@@ -148,7 +145,7 @@ def main():
     # Quick sanity checks
     loaded = Image.open(out_path)
     assert loaded.size == (SIZE, SIZE), f"Wrong size: {loaded.size}"
-    # Check a center pixel is whitish (the K center-stroke should be white or near-white)
+    # Check a center pixel is whitish (the R center-stroke should be white or near-white)
     print(f"Center pixel: {loaded.getpixel((SIZE//2, SIZE//2))}")
     print("Sanity checks passed.")
 

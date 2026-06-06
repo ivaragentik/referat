@@ -81,7 +81,7 @@ export function BluetoothPlaybackWarning({
             <strong>kablede hodetelefoner</strong>.
             <br />
             <a
-              href="https://github.com/iaknutsen/knutsen-notes"
+              href="https://github.com/iaknutsen/referat"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-yellow-900 font-medium mt-2 inline-block"

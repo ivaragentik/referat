@@ -23,7 +23,7 @@ export function About() {
 
     const handleGitHubClick = async () => {
         try {
-            await invoke('open_external_url', { url: 'https://github.com/iaknutsen/knutsen-notes' });
+            await invoke('open_external_url', { url: 'https://github.com/iaknutsen/referat' });
         } catch (error) {
             console.error('Failed to open link:', error);
         }
@@ -54,7 +54,7 @@ export function About() {
                 <div className="mb-3">
                     <Image
                         src="icon_128x128.png"
-                        alt="Knutsen Notes Logo"
+                        alt="Referat Logo"
                         width={64}
                         height={64}
                         className="mx-auto"
@@ -94,7 +94,7 @@ export function About() {
 
             {/* Feature points */}
             <div className="space-y-3">
-                <h2 className="text-base font-semibold text-gray-800">Hva gjør Knutsen Notes spesielt?</h2>
+                <h2 className="text-base font-semibold text-gray-800">Hva gjør Referat spesielt?</h2>
                 <div className="grid grid-cols-2 gap-2">
                     <div className="bg-gray-50 rounded p-3 hover:bg-gray-100 transition-colors">
                         <h3 className="font-bold text-sm text-gray-900 mb-1">Norsk transkripsjon i verdensklasse</h3>
@@ -118,7 +118,7 @@ export function About() {
             {/* Credits */}
             <div className="pt-2 border-t border-gray-200 text-center space-y-2">
                 <p className="text-xs text-gray-400">
-                    Bygget på Meetily (MIT) · NB-Whisper fra Nasjonalbiblioteket
+                    Bygget på Meetily (MIT) · NB-Whisper fra Nasjonalbiblioteket · Laget av Agentik
                 </p>
                 <button
                     onClick={handleGitHubClick}

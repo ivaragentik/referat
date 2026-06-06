@@ -46,7 +46,7 @@ export function SetupOverviewStep() {
   return (
     <OnboardingContainer
       title="Oppsettsoversikt"
-      description="Knutsen Notes krever at du laster ned transkripsjon- og sammendrag-AI-modellene for at appen skal fungere."
+      description="Referat krever at du laster ned transkripsjon- og sammendrag-AI-modellene for at appen skal fungere."
       step={2}
       totalSteps={isMac ? 4 : 3}
     >
@@ -98,7 +98,7 @@ export function SetupOverviewStep() {
           </Button>
           <div className="text-center">
             <a
-              href="https://github.com/iaknutsen/knutsen-notes"
+              href="https://github.com/iaknutsen/referat"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-gray-600 hover:underline"

@@ -98,7 +98,7 @@ export function PermissionWarning({
             {!hasMicrophone && (
               <>
                 <p className="mb-3">
-                  Knutsen Notes trenger tilgang til mikrofonen din for å ta opp møter. Ingen mikrofonenheter ble funnet.
+                  Referat trenger tilgang til mikrofonen din for å ta opp møter. Ingen mikrofonenheter ble funnet.
                 </p>
                 <div className="space-y-2 text-sm mb-4">
                   <p className="font-medium">Kontroller følgende:</p>
@@ -124,7 +124,7 @@ export function PermissionWarning({
                     <p className="font-medium">Slik aktiverer du systemlyd på macOS:</p>
                     <ul className="list-disc list-inside ml-2 space-y-1">
                       <li>Installer en virtuell lydenhet (f.eks. BlackHole 2ch)</li>
-                      <li>Gi Knutsen Notes tillatelse til skjermopptak</li>
+                      <li>Gi Referat tillatelse til skjermopptak</li>
                       <li>Konfigurer lydrutingen i Audio MIDI Setup</li>
                     </ul>
                   </div>

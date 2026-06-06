@@ -42,7 +42,7 @@ export function LegacyDatabaseImport({ isOpen, onComplete }: LegacyDatabaseImpor
         setDetectedPath(dbPath);
         setImportState('idle');
       } else {
-        setErrorMessage('Ingen database funnet på valgt sted. Velg Knutsen Notes-mappen, backend-mappen eller databasefilen direkte.');
+        setErrorMessage('Ingen database funnet på valgt sted. Velg Referat-mappen, backend-mappen eller databasefilen direkte.');
         setDetectedPath(null);
         setImportState('error');
         setTimeout(() => setImportState('idle'), 3000);
@@ -119,7 +119,7 @@ export function LegacyDatabaseImport({ isOpen, onComplete }: LegacyDatabaseImpor
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-[600px]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="text-2xl">Velkommen til Knutsen Notes!</DialogTitle>
+          <DialogTitle className="text-2xl">Velkommen til Referat!</DialogTitle>
           <DialogDescription className="text-base pt-2">
             Har du data fra en tidligere installasjon?
           </DialogDescription>
@@ -135,7 +135,7 @@ export function LegacyDatabaseImport({ isOpen, onComplete }: LegacyDatabaseImpor
           {/* Browse Section */}
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
-              Velg din tidligere Knutsen Notes-mappe, backend-katalog eller databasefil:
+              Velg din tidligere Referat-mappe, backend-katalog eller databasefil:
             </p>
 
             <button

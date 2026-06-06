@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Knutsen Notes',
-  description: 'Ingen bot. Ingen sky. Ingen regning.',
+  title: 'Referat',
+  description: 'Referat skriver referatet. Ingen bot. Ingen sky. Ingen regning.',
 };
