@@ -1,0 +1,27 @@
+{
+  "name": "Møtereferat",
+  "description": "Norsk standardmal for møtereferat. All tekst skal være på norsk bokmål.",
+  "sections": [
+    {
+      "title": "Sammendrag",
+      "instruction": "Skriv et kort sammendrag av hele møtet i ett avsnitt. Svar alltid på norsk bokmål, uavhengig av hvilket språk transkripsjonen er på.",
+      "format": "paragraph"
+    },
+    {
+      "title": "Beslutninger",
+      "instruction": "List opp de viktigste beslutningene som ble tatt i møtet. Skriv på norsk bokmål.",
+      "format": "list"
+    },
+    {
+      "title": "Oppgaver",
+      "instruction": "List opp alle oppgaver (action items) med ansvarlig person og frist. Skriv på norsk bokmål. Ta alltid med referanse til transkriptsegment og tidsstempel i tabellen.",
+      "format": "list",
+      "item_format": "| **Ansvarlig** | Oppgave | Frist | Referanse | Tidsstempel |\n| --- | --- | --- | --- | --- |"
+    },
+    {
+      "title": "Neste steg",
+      "instruction": "Oppsummer kort hva som skjer videre etter møtet, inkludert eventuelle oppfølgingsmøter. Skriv på norsk bokmål.",
+      "format": "paragraph"
+    }
+  ]
+}

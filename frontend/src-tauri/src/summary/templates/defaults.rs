@@ -9,6 +9,9 @@ pub const DAILY_STANDUP: &str = include_str!("../../../templates/daily_standup.j
 /// Standard meeting notes template
 pub const STANDARD_MEETING: &str = include_str!("../../../templates/standard_meeting.json");
 
+/// Norwegian meeting minutes template (møtereferat) — all output in Norwegian Bokmål
+pub const MOTEREFERAT: &str = include_str!("../../../templates/motereferat.json");
+
 /// Registry of all built-in templates
 ///
 /// Maps template identifiers to their embedded JSON content
@@ -16,6 +19,7 @@ pub fn get_builtin_templates() -> Vec<(&'static str, &'static str)> {
     vec![
         ("daily_standup", DAILY_STANDUP),
         ("standard_meeting", STANDARD_MEETING),
+        ("motereferat", MOTEREFERAT),
     ]
 }
 
@@ -30,13 +34,14 @@ pub fn get_builtin_template(id: &str) -> Option<&'static str> {
     match id {
         "daily_standup" => Some(DAILY_STANDUP),
         "standard_meeting" => Some(STANDARD_MEETING),
+        "motereferat" => Some(MOTEREFERAT),
         _ => None,
     }
 }
 
 /// List all built-in template identifiers
 pub fn list_builtin_template_ids() -> Vec<&'static str> {
-    vec!["daily_standup", "standard_meeting"]
+    vec!["daily_standup", "standard_meeting", "motereferat"]
 }
 
 #[cfg(test)]
@@ -61,5 +66,21 @@ mod tests {
         assert!(get_builtin_template("daily_standup").is_some());
         assert!(get_builtin_template("standard_meeting").is_some());
         assert!(get_builtin_template("nonexistent").is_none());
+    }
+
+    #[test]
+    fn test_motereferat_template_registered() {
+        assert!(get_builtin_template("motereferat").is_some());
+        assert!(list_builtin_template_ids().contains(&"motereferat"));
+        assert!(get_builtin_templates().iter().any(|(id, _)| *id == "motereferat"));
+    }
+
+    #[test]
+    fn test_motereferat_parses_and_validates() {
+        let t: crate::summary::templates::types::Template =
+            serde_json::from_str(MOTEREFERAT).expect("motereferat.json must deserialize to Template");
+        t.validate().expect("motereferat template must validate");
+        assert_eq!(t.name, "Møtereferat");
+        assert_eq!(t.sections.len(), 4);
     }
 }
