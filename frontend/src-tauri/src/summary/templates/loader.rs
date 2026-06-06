@@ -19,12 +19,16 @@ pub fn set_bundled_templates_dir(path: PathBuf) {
 /// Get the user's custom templates directory path
 ///
 /// Returns the platform-specific application data directory for custom templates:
-/// - macOS: ~/Library/Application Support/Meetily/templates/
-/// - Windows: %APPDATA%\Meetily\templates\
-/// - Linux: ~/.config/Meetily/templates/
-fn get_custom_templates_dir() -> Option<PathBuf> {
+/// - macOS: ~/Library/Application Support/Referat/templates/
+/// - Windows: %APPDATA%\Referat\templates\
+/// - Linux: ~/.local/share/Referat/templates/
+///
+/// Custom template files (.json) placed in this directory are discovered on every
+/// `list_templates` / `get_template` call (no caching). A newly saved file therefore
+/// becomes visible on the **next** call, without requiring an app restart.
+pub fn get_custom_templates_dir() -> Option<PathBuf> {
     let mut path = dirs::data_dir()?;
-    path.push("Meetily");
+    path.push("Referat");
     path.push("templates");
     Some(path)
 }

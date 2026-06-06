@@ -14,6 +14,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sparkles, Settings, Loader2, FileText, Check, Square } from 'lucide-react';
@@ -36,6 +37,7 @@ interface SummaryGeneratorButtonGroupProps {
   availableTemplates: Array<{ id: string, name: string, description: string }>;
   selectedTemplate: string;
   onTemplateSelect: (templateId: string, templateName: string) => void;
+  onRefetchTemplates?: () => void;
   hasTranscripts?: boolean;
   hasSummary?: boolean;
   isModelConfigLoading?: boolean;
@@ -53,6 +55,7 @@ export function SummaryGeneratorButtonGroup({
   availableTemplates,
   selectedTemplate,
   onTemplateSelect,
+  onRefetchTemplates,
   hasTranscripts = true,
   hasSummary = false,
   isModelConfigLoading = false,
@@ -61,6 +64,7 @@ export function SummaryGeneratorButtonGroup({
 }: SummaryGeneratorButtonGroupProps) {
   const [isCheckingModels, setIsCheckingModels] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
 
   // Expose the function to open the modal via callback registration
   useEffect(() => {
@@ -326,7 +330,15 @@ export function SummaryGeneratorButtonGroup({
 
       {/* Template selector dropdown */}
       {availableTemplates.length > 0 && (
-        <DropdownMenu>
+        <DropdownMenu
+          open={templateDropdownOpen}
+          onOpenChange={(open) => {
+            if (open && onRefetchTemplates) {
+              onRefetchTemplates();
+            }
+            setTemplateDropdownOpen(open);
+          }}
+        >
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
@@ -337,21 +349,40 @@ export function SummaryGeneratorButtonGroup({
               <span className="hidden lg:inline">Mal</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="min-w-[220px]">
             {availableTemplates.map((template) => (
               <DropdownMenuItem
                 key={template.id}
                 onClick={() => onTemplateSelect(template.id, template.name)}
-                title={template.description}
                 className="flex items-center justify-between gap-2"
               >
-                <span>{template.name}</span>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium truncate">{template.name}</span>
+                  {template.description && (
+                    <span className="text-xs text-gray-500 line-clamp-2">{template.description}</span>
+                  )}
+                </div>
                 {selectedTemplate === template.id && (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
                 )}
               </DropdownMenuItem>
             ))}
-
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={async () => {
+                try {
+                  await invoke('open_templates_folder');
+                  toast.info('Lagre malen som en .json-fil i mappen — så dukker den opp her.');
+                } catch (error) {
+                  toast.error('Kunne ikke åpne mal-mappen', {
+                    description: error instanceof Error ? error.message : String(error),
+                  });
+                }
+              }}
+              className="text-sm text-gray-600"
+            >
+              ➕ Lag din egen mal…
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}

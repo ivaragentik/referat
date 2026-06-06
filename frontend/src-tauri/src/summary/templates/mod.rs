@@ -31,9 +31,9 @@
 //! # Custom Templates
 //!
 //! Users can add custom templates to:
-//! - macOS: `~/Library/Application Support/Meetily/templates/`
-//! - Windows: `%APPDATA%\Meetily\templates\`
-//! - Linux: `~/.config/Meetily/templates/`
+//! - macOS: `~/Library/Application Support/Referat/templates/`
+//! - Windows: `%APPDATA%\Referat\templates\`
+//! - Linux: `~/.local/share/Referat/templates/`
 //!
 //! Custom templates must follow the JSON schema defined in `types::Template`.
 
@@ -43,6 +43,7 @@ mod types;
 
 // Re-export public API
 pub use loader::{
+    get_custom_templates_dir as loader_get_custom_templates_dir,
     get_template, list_template_ids, list_templates, set_bundled_templates_dir,
     validate_and_parse_template,
 };

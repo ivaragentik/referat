@@ -82,15 +82,15 @@ export function useSummaryGeneration({
   const getSummaryStatusMessage = useCallback((status: SummaryStatus) => {
     switch (status) {
       case 'processing':
-        return 'Processing transcript...';
+        return 'Behandler transkripsjon…';
       case 'summarizing':
-        return 'Generating summary...';
+        return 'Lager sammendrag…';
       case 'regenerating':
-        return 'Regenerating summary...';
+        return 'Lager sammendrag på nytt…';
       case 'completed':
-        return 'Summary completed';
+        return 'Sammendrag ferdig';
       case 'error':
-        return 'Error generating summary';
+        return 'Feil ved generering av sammendrag';
       default:
         return '';
     }
@@ -113,7 +113,7 @@ export function useSummaryGeneration({
 
     try {
       if (!transcriptText.trim()) {
-        throw new Error('No transcript text available. Please add some text first.');
+        throw new Error('Ingen transkripsjonstekst tilgjengelig. Legg til tekst først.');
       }
 
       console.log('Processing transcript with template:', selectedTemplate);
@@ -195,7 +195,7 @@ export function useSummaryGeneration({
         // Handle errors
         if (pollingResult.status === 'error' || pollingResult.status === 'failed') {
           console.error('Backend returned error:', pollingResult.error);
-          const errorMessage = pollingResult.error || `Summary ${isRegeneration ? 'regeneration' : 'generation'} failed`;
+          const errorMessage = pollingResult.error || `Sammendrag${isRegeneration ? 'sgenerering på nytt' : 'sgenerering'} mislyktes`;
 
           // If this was a regeneration, try to restore previous summary from database
           if (isRegeneration) {
@@ -211,8 +211,8 @@ export function useSummaryGeneration({
                 setSummaryError(null);
 
                 // Show error toast with restoration message
-                toast.error(`Failed to regenerate summary`, {
-                  description: `${errorMessage}. Your previous summary has been restored.`,
+                toast.error('Kunne ikke generere sammendrag på nytt', {
+                  description: `${errorMessage}. Det forrige sammendraget er gjenopprettet.`,
                 });
 
                 await Analytics.trackSummaryGenerationCompleted(
@@ -239,9 +239,9 @@ export function useSummaryGeneration({
             errorMessage.toLowerCase().includes('model') && errorMessage.toLowerCase().includes('required');
 
           // Show error toast
-          toast.error(`Failed to ${isRegeneration ? 'regenerate' : 'generate'} summary`, {
+          toast.error(isRegeneration ? 'Kunne ikke generere sammendrag på nytt' : 'Kunne ikke generere sammendrag', {
             description: errorMessage.includes('Connection refused')
-              ? 'Could not connect to LLM service. Please ensure Ollama or your configured LLM provider is running.'
+              ? 'Kunne ikke koble til LLM-tjenesten. Sørg for at Ollama eller din konfigurerte LLM-leverandør kjører.'
               : errorMessage,
           });
 
@@ -301,7 +301,7 @@ export function useSummaryGeneration({
 
           if (allEmpty) {
             console.error('Summary completed but all sections empty');
-            setSummaryError('Summary generation completed but returned empty content.');
+            setSummaryError('Sammendragsgenerering fullført, men returnerte tomt innhold.');
             setSummaryStatus('error');
 
             await Analytics.trackSummaryGenerationCompleted(
@@ -573,8 +573,8 @@ export function useSummaryGeneration({
 
             if (status.type === 'corrupted' || status.type === 'error') {
               const errorDesc = status.type === 'error'
-                ? status.Error || 'The model file has an error'
-                : 'The model file is corrupted';
+                ? status.Error || 'Modellfilen har en feil'
+                : 'Modellfilen er ødelagt';
               toast.error('Innebygd AI-modell ikke tilgjengelig', {
                 description: `${errorDesc}. Sjekk modellinnstillinger.`,
                 duration: 7000,
