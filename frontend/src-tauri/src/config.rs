@@ -4,8 +4,8 @@
 /// Used across database initialization, import, and retranscription.
 
 /// Default Whisper model for transcription when no preference is configured.
-/// This is the recommended balance of accuracy and speed.
-pub const DEFAULT_WHISPER_MODEL: &str = "large-v3-turbo";
+/// Best accuracy for Norwegian Bokmål via NB-Whisper (NbAiLab / Nasjonalbiblioteket).
+pub const DEFAULT_WHISPER_MODEL: &str = "nb-whisper-large-q5_0";
 
 /// Default Parakeet model for transcription when no preference is configured.
 /// This is the quantized version optimized for speed.
@@ -33,4 +33,44 @@ pub const WHISPER_MODEL_CATALOG: &[(&str, &str, u32, &str, &str, &str)] = &[
     ("medium-q5_0", "ggml-medium-q5_0.bin", 514, "High", "Medium", "Quantized medium model, professional quality"),
     ("large-v3-turbo-q5_0", "ggml-large-v3-turbo-q5_0.bin", 547, "High", "Medium", "Quantized large model, best balance"),
     ("large-v3-q5_0", "ggml-large-v3-q5_0.bin", 1031, "High", "Slow", "Quantized large model, high accuracy"),
+
+    // NB-Whisper — Norwegian Bokmål finetuned Whisper (NbAiLab / Nasjonalbiblioteket)
+    // Same architecture as stock Whisper, so file sizes match the stock q5_0 models.
+    ("nb-whisper-large-q5_0", "ggml-nb-whisper-large-q5_0.bin", 1031, "High", "Slow", "Norsk (bokmål) — NB-Whisper Large, best Norwegian accuracy"),
+    ("nb-whisper-medium-q5_0", "ggml-nb-whisper-medium-q5_0.bin", 514, "High", "Medium", "Norsk (bokmål) — NB-Whisper Medium, fast Norwegian transcription"),
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_nb_whisper_models_in_catalog() {
+        let names: Vec<&str> = WHISPER_MODEL_CATALOG.iter().map(|m| m.0).collect();
+        assert!(names.contains(&"nb-whisper-large-q5_0"), "nb-whisper-large-q5_0 missing from catalog");
+        assert!(names.contains(&"nb-whisper-medium-q5_0"), "nb-whisper-medium-q5_0 missing from catalog");
+    }
+
+    #[test]
+    fn test_default_whisper_model_is_norwegian_and_in_catalog() {
+        assert_eq!(DEFAULT_WHISPER_MODEL, "nb-whisper-large-q5_0");
+        assert!(
+            WHISPER_MODEL_CATALOG.iter().any(|m| m.0 == DEFAULT_WHISPER_MODEL),
+            "DEFAULT_WHISPER_MODEL must exist in WHISPER_MODEL_CATALOG"
+        );
+    }
+
+    #[test]
+    fn test_catalog_filenames_follow_download_pattern() {
+        // download_model() derives the on-disk filename as `ggml-{name}.bin`.
+        // Catalog filenames must match, or downloads and model discovery disagree.
+        for entry in WHISPER_MODEL_CATALOG {
+            assert_eq!(
+                entry.1,
+                format!("ggml-{}.bin", entry.0),
+                "catalog filename mismatch for model '{}'",
+                entry.0
+            );
+        }
+    }
+}
