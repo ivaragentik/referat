@@ -634,8 +634,8 @@ pub async fn api_get_transcript_config<R: Runtime>(
         Ok(None) => {
             log_info!("No transcript config found, returning default.");
             Ok(Some(TranscriptConfig {
-                provider: "parakeet".to_string(),
-                model: crate::config::DEFAULT_PARAKEET_MODEL.to_string(),
+                provider: "localWhisper".to_string(),
+                model: crate::config::DEFAULT_WHISPER_MODEL.to_string(),
                 api_key: None,
             }))
         }
@@ -1192,21 +1192,28 @@ pub async fn install_claude_connector<R: Runtime>(app: AppHandle<R>) -> Result<(
     let result = if cfg!(target_os = "windows") {
         Command::new("cmd")
             .args(&["/C", "start", "", &mcpb_path.to_string_lossy()])
-            .spawn()
+            .status()
     } else if cfg!(target_os = "macos") {
         Command::new("open")
             .arg(&mcpb_path)
-            .spawn()
+            .status()
     } else {
         Command::new("xdg-open")
             .arg(&mcpb_path)
-            .spawn()
+            .status()
     };
 
-    result.map(|_| ()).map_err(|e| {
-        log_error!("install_claude_connector failed: {}", e);
-        format!("Kunne ikke åpne koblingen. Er Claude Desktop installert? ({})", e)
-    })
+    match result {
+        Ok(status) if status.success() => Ok(()),
+        Ok(status) => {
+            log_error!("install_claude_connector exited with status: {}", status);
+            Err("Kunne ikke åpne koblingen. Er Claude Desktop installert?".to_string())
+        }
+        Err(e) => {
+            log_error!("install_claude_connector failed: {}", e);
+            Err("Kunne ikke åpne koblingen. Er Claude Desktop installert?".to_string())
+        }
+    }
 }
 
 // ===== CUSTOM OPENAI API COMMANDS =====

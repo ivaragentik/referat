@@ -115,8 +115,8 @@ impl Default for NotificationTimeout {
 impl Notification {
     pub fn recording_started(meeting_name: Option<String>) -> Self {
         let body = match meeting_name {
-            Some(name) => format!("Recording started for meeting: {}", name),
-            None => "Recording has started. Please inform others in the meeting that you are recording.".to_string(),
+            Some(name) => format!("Opptak startet for møte: {}", name),
+            None => "Opptaket er startet. Vennligst informer andre i møtet om at du tar opp.".to_string(),
         };
 
         Notification::new("Referat", body, NotificationType::RecordingStarted)
@@ -127,7 +127,7 @@ impl Notification {
     pub fn recording_stopped() -> Self {
         Notification::new(
             "Referat",
-            "Recording has been stopped and saved",
+            "Opptaket er stoppet og lagret",
             NotificationType::RecordingStopped
         )
         .with_priority(NotificationPriority::Normal)
@@ -137,7 +137,7 @@ impl Notification {
     pub fn recording_paused() -> Self {
         Notification::new(
             "Referat",
-            "Recording has been paused",
+            "Opptaket er satt på pause",
             NotificationType::RecordingPaused
         )
         .with_priority(NotificationPriority::Normal)
@@ -147,7 +147,7 @@ impl Notification {
     pub fn recording_resumed() -> Self {
         Notification::new(
             "Referat",
-            "Recording has been resumed",
+            "Opptaket er gjenopptatt",
             NotificationType::RecordingResumed
         )
         .with_priority(NotificationPriority::Normal)
@@ -156,8 +156,8 @@ impl Notification {
 
     pub fn transcription_complete(file_path: Option<String>) -> Self {
         let body = match file_path {
-            Some(path) => format!("Transcription completed and saved to: {}", path),
-            None => "Transcription has been completed".to_string(),
+            Some(path) => format!("Transkripsjon fullført og lagret til: {}", path),
+            None => "Transkripsjonen er fullført".to_string(),
         };
 
         Notification::new("Referat", body, NotificationType::TranscriptionComplete)
@@ -167,8 +167,8 @@ impl Notification {
 
     pub fn meeting_reminder(minutes_until: u64, meeting_title: Option<String>) -> Self {
         let body = match meeting_title {
-            Some(title) => format!("Meeting '{}' starts in {} minutes", title, minutes_until),
-            None => format!("Meeting starts in {} minutes", minutes_until),
+            Some(title) => format!("Møtet '{}' starter om {} minutter", title, minutes_until),
+            None => format!("Møtet starter om {} minutter", minutes_until),
         };
 
         Notification::new("Referat", body, NotificationType::MeetingReminder(minutes_until))
@@ -179,7 +179,7 @@ impl Notification {
     pub fn system_error(error: impl Into<String>) -> Self {
         let error_string = error.into();
         Notification::new(
-            "Referat Error",
+            "Referat",
             error_string.clone(),
             NotificationType::SystemError(error_string)
         )
@@ -190,7 +190,7 @@ impl Notification {
     pub fn test_notification() -> Self {
         Notification::new(
             "Referat",
-            "This is a test notification to verify the system is working correctly",
+            "Dette er en testvarsel for å bekrefte at systemet fungerer som det skal",
             NotificationType::Test
         )
         .with_priority(NotificationPriority::Normal)

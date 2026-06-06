@@ -157,14 +157,14 @@ export function useCopyOperations({
       }
 
       // Build metadata header
-      const header = `# Meeting Summary: ${meetingTitle}\n\n`;
-      const metadata = `**Meeting ID:** ${meeting.id}\n**Date:** ${new Date(meeting.created_at).toLocaleDateString('en-US', {
+      const header = `# Møtesammendrag: ${meetingTitle}\n\n`;
+      const metadata = `**Møte-ID:** ${meeting.id}\n**Dato:** ${new Date(meeting.created_at).toLocaleDateString('nb-NO', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      })}\n**Copied on:** ${new Date().toLocaleDateString('en-US', {
+      })}\n**Kopiert:** ${new Date().toLocaleDateString('nb-NO', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',

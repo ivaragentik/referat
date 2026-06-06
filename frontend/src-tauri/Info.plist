@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>This application needs access to your microphone to record meeting audio.</string>
+    <string>Referat trenger tilgang til mikrofonen for å ta opp møtene dine.</string>
     <key>NSScreenCaptureUsageDescription</key>
-    <string>This application needs screen recording permission to capture system audio during meetings.</string>
+    <string>Referat trenger skjermopptakstillatelse for å fange opp systemlyd under møter.</string>
     <key>NSAudioCaptureUsageDescription</key>
-    <string>This application needs permission to capture system audio output for meeting transcription and recording.</string>
+    <string>Referat trenger tillatelse til å fange opp systemlydutgang for transkripsjon og opptak av møter.</string>
     <key>com.apple.security.device.audio-input</key>
     <true/>
 </dict>

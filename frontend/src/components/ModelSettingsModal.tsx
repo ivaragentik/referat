@@ -204,6 +204,12 @@ export function ModelSettingsModal({
       try {
         const data = (await invoke('api_get_model_config')) as any;
         if (data && data.provider !== null) {
+          // Guard against stale DB values that are no longer valid providers
+          const validProviders: SupportedProvider[] = ['builtin-ai', 'ollama', 'openai', 'claude'];
+          if (!validProviders.includes(data.provider as SupportedProvider)) {
+            console.warn(`[ModelSettingsModal] Unknown provider "${data.provider}", normalizing to builtin-ai`);
+            data.provider = 'builtin-ai';
+          }
           setModelConfig(data);
 
           // Sync ollamaEndpoint state with fetched config
@@ -374,7 +380,7 @@ export function ModelSettingsModal({
       }
     } catch (err) {
       console.error('Error loading Built-in AI models:', err);
-      toast.error('Failed to load Built-in AI models');
+      toast.error('Kunne ikke laste innebygde AI-modeller');
     }
   };
 
@@ -488,8 +494,8 @@ export function ModelSettingsModal({
 
     // Prevent duplicate downloads (defense in depth - backend also checks)
     if (isDownloading(recommendedModel)) {
-      toast.info(`${recommendedModel} is already downloading`, {
-        description: `Progress: ${Math.round(getProgress(recommendedModel) || 0)}%`
+      toast.info(`${recommendedModel} lastes allerede ned`, {
+        description: `Fremdrift: ${Math.round(getProgress(recommendedModel) || 0)}%`
       });
       return;
     }
@@ -539,7 +545,7 @@ export function ModelSettingsModal({
         endpoint
       });
 
-      toast.success(`Model ${modelName} deleted`);
+      toast.success(`Modell ${modelName} slettet`);
       await fetchOllamaModels(true); // Refresh list
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to delete model';

@@ -8,6 +8,7 @@ import { recordingService } from '@/services/recordingService';
 import Analytics from '@/lib/analytics';
 import { showRecordingNotification } from '@/lib/recordingNotification';
 import { toast } from 'sonner';
+import type { TranscriptModelProps } from '@/components/TranscriptSettings';
 
 interface UseRecordingStartReturn {
   handleRecordingStart: () => Promise<void>;
@@ -49,14 +50,23 @@ export function useRecordingStart(
     return `Meeting ${day}_${month}_${year}_${hours}_${minutes}_${seconds}`;
   }, []);
 
-  // Check if Parakeet transcription model is ready
+  // Check if the active transcription engine model is ready
   const checkParakeetReady = useCallback(async (): Promise<boolean> => {
     try {
-      await invoke('parakeet_init');
-      const hasModels = await invoke<boolean>('parakeet_has_available_models');
-      return hasModels;
+      // Read active transcript provider from config
+      const config = await invoke<TranscriptModelProps>('api_get_transcript_config');
+      const provider = config?.provider ?? 'localWhisper';
+
+      if (provider === 'parakeet') {
+        await invoke('parakeet_init');
+        return await invoke<boolean>('parakeet_has_available_models');
+      } else {
+        // localWhisper (default)
+        await invoke('whisper_init');
+        return await invoke<boolean>('whisper_has_available_models');
+      }
     } catch (error) {
-      console.error('Failed to check Parakeet status:', error);
+      console.error('Failed to check transcription engine status:', error);
       return false;
     }
   }, []);
@@ -64,15 +74,30 @@ export function useRecordingStart(
   // Check if any model is currently downloading
   const checkIfModelDownloading = useCallback(async (): Promise<boolean> => {
     try {
-      const models = await invoke<any[]>('parakeet_get_available_models');
-      const isDownloading = models.some(m =>
-        m.status && (
-          typeof m.status === 'object'
-            ? 'Downloading' in m.status
-            : m.status === 'Downloading'
-        )
-      );
-      return isDownloading;
+      // Read active transcript provider from config
+      const config = await invoke<TranscriptModelProps>('api_get_transcript_config');
+      const provider = config?.provider ?? 'localWhisper';
+
+      if (provider === 'parakeet') {
+        const models = await invoke<any[]>('parakeet_get_available_models');
+        return models.some(m =>
+          m.status && (
+            typeof m.status === 'object'
+              ? 'Downloading' in m.status
+              : m.status === 'Downloading'
+          )
+        );
+      } else {
+        // localWhisper
+        const models = await invoke<any[]>('whisper_get_available_models');
+        return models.some(m =>
+          m.status && (
+            typeof m.status === 'object'
+              ? 'Downloading' in m.status
+              : m.status === 'Downloading'
+          )
+        );
+      }
     } catch (error) {
       console.error('Failed to check model download status:', error);
       return false; // Default to not downloading (will show error + modal)
@@ -95,9 +120,8 @@ export function useRecordingStart(
           });
           Analytics.trackButtonClick('start_recording_blocked_downloading', 'home_page');
         } else {
-          toast.error('Transkripsjonmodell ikke klar', {
-            description: 'Last ned en transkripsjonmodell før du starter opptak.',
-            duration: 5000,
+          toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
+            duration: 7000,
           });
           showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
           Analytics.trackButtonClick('start_recording_blocked_missing', 'home_page');
@@ -164,9 +188,8 @@ export function useRecordingStart(
               });
               Analytics.trackButtonClick('start_recording_blocked_downloading', 'sidebar_auto');
             } else {
-              toast.error('Transkripsjonmodell ikke klar', {
-                description: 'Last ned en transkripsjonmodell før du starter opptak.',
-                duration: 5000,
+              toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
+                duration: 7000,
               });
               showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
               Analytics.trackButtonClick('start_recording_blocked_missing', 'sidebar_auto');
@@ -252,9 +275,8 @@ export function useRecordingStart(
           });
           Analytics.trackButtonClick('start_recording_blocked_downloading', 'sidebar_direct');
         } else {
-          toast.error('Transkripsjonmodell ikke klar', {
-            description: 'Last ned en transkripsjonmodell før du starter opptak.',
-            duration: 5000,
+          toast.error('Den norske modellen er ikke lastet ned ennå. Gå til Innstillinger → Transkripsjon for å laste den ned.', {
+            duration: 7000,
           });
           showModal?.('modelSelector', 'Transkripsjonmodell-oppsett kreves');
           Analytics.trackButtonClick('start_recording_blocked_missing', 'sidebar_direct');

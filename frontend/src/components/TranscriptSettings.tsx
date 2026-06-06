@@ -79,7 +79,7 @@ export function TranscriptSettings({ transcriptModelConfig, setTranscriptModelCo
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="localWhisper">🏠 Lokal Whisper (norsk — anbefalt)</SelectItem>
-                                    <SelectItem value="parakeet">⚡ Parakeet (rask, kun engelsk)</SelectItem>
+                                    <SelectItem value="parakeet">⚡ Parakeet (raskere, flerspråklig)</SelectItem>
                                 </SelectContent>
                             </Select>
 

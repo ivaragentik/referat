@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { OnboardingContainer } from '../OnboardingContainer';
 import { PermissionRow } from '../shared';
 import { useOnboarding } from '@/contexts/OnboardingContext';
+import { toast } from 'sonner';
 
 export function PermissionsStep() {
   const { setPermissionStatus, setPermissionsSkipped, permissions, completeOnboarding } = useOnboarding();
@@ -32,7 +33,7 @@ export function PermissionsStep() {
       try {
         await invoke('open_system_settings');
       } catch {
-        alert('Aktiver mikrofontilgang i Systemvalg > Sikkerhet og personvern > Mikrofon');
+        toast.info('Aktiver mikrofontilgang i Systeminnstillinger → Personvern og sikkerhet → Mikrofon');
       }
       return;
     }

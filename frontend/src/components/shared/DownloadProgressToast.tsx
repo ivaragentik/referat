@@ -18,7 +18,7 @@ interface DownloadProgress {
   error?: string;
 }
 
-// Categorize error messages for better user experience
+// Categorize error messages for better user experience (Bokmål)
 function categorizeError(error: string): string {
   const lowerError = error.toLowerCase();
 
@@ -26,21 +26,21 @@ function categorizeError(error: string): string {
     lowerError.includes('connection') ||
     lowerError.includes('timeout') ||
     lowerError.includes('failed to start download')) {
-    return 'Network error - Check your internet connection';
+    return 'Nettverksfeil — sjekk internettforbindelsen din';
   }
 
   if (lowerError.includes('status:') || lowerError.includes('http')) {
-    return 'Server error - Download temporarily unavailable';
+    return 'Tjenerfeil — nedlasting midlertidig utilgjengelig';
   }
 
   if (lowerError.includes('disk') ||
     lowerError.includes('write') ||
     lowerError.includes('file')) {
-    return 'Storage error - Check available disk space';
+    return 'Lagringsfeil — sjekk tilgjengelig diskplass';
   }
 
   if (lowerError.includes('invalid') || lowerError.includes('validation')) {
-    return 'File validation failed - Please retry download';
+    return 'Filverifisering mislyktes — prøv nedlastingen på nytt';
   }
 
   // Fallback to original error
@@ -86,11 +86,11 @@ function DownloadToastContent({
         </div>
 
         {hasError ? (
-          <p className="text-xs text-red-600">{download.error || 'Download failed'}</p>
+          <p className="text-xs text-red-600">{download.error || 'Nedlasting mislyktes'}</p>
         ) : isComplete ? (
-          <p className="text-xs text-green-600">Download complete</p>
+          <p className="text-xs text-green-600">Nedlasting fullført</p>
         ) : isCancelled ? (
-          <p className="text-xs text-gray-600">Download cancelled</p>
+          <p className="text-xs text-gray-600">Nedlasting avbrutt</p>
         ) : (
           <>
             {/* Progress bar */}

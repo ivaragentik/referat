@@ -62,7 +62,7 @@ export function SetupOverviewStep() {
                 >
                   <div className="flex-1 ml-1">
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
-                        Step {step.number} :  {step.title}
+                        Trinn {step.number}: {step.title}
 
                         {step.type === "summarization" && (
                             <TooltipProvider>
@@ -87,6 +87,11 @@ export function SetupOverviewStep() {
           </div>
         </div>
 
+
+        {/* One-time download note */}
+        <p className="text-sm text-gray-600 max-w-md text-center">
+          Alt lastes ned én gang, slik at alt kjører lokalt — etterpå trenger du ikke internett for å transkribere.
+        </p>
 
         {/* CTA Section */}
         <div className="w-full max-w-xs space-y-4">

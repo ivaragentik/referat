@@ -248,7 +248,7 @@ export function SettingsModals({
           {/* Fixed Header */}
           <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">
-              {messages.modelSelector ? 'Oppsett av talegjenkjenning kreves' : 'Transkripsjonmodellinnstillinger'}
+              {messages.modelSelector ? 'Oppsett av talegjenkjenning kreves' : 'Transkripsjonsmodellinnstillinger'}
             </h3>
             <button
               onClick={() => onClose('modelSelector')}

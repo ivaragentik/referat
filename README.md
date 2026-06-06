@@ -37,17 +37,15 @@
 
 > Stupidly simple. Seks steg fra null til transkripsjon.
 
-1. **Last ned appen.** Gå til [Releases](https://github.com/ivaragentik/referat/releases) <!-- TODO: oppdater lenke når releases er satt opp --> og last ned `.dmg`-filen.
+1. **Last ned appen.** Gå til [Releases](https://github.com/ivaragentik/referat/releases) og last ned `.dmg`-filen.
 
-2. **Installer.** Åpne `.dmg`, dra **Referat** til Programmer-mappen.
+2. **Installer.** Åpne `.dmg`, dra **Referat** til Programmer-mappen, dobbeltklikk. Appen er signert og notarisert av Apple — ingen høyreklikk-dans nødvendig.
 
-3. **Første oppstart — høyreklikk → Åpne.** Appen er ikke signert av Apple ennå (se [veikart](#veikart)). Dobbeltklikk vil bli blokkert av Gatekeeper. Høyreklikk på ikonet → «Åpne» → bekreft i dialogen. Du gjør dette kun én gang.
+3. **Gi tillatelser.** macOS spør om mikrofontilgang og skjermopptak (nødvendig for systemlyd). Godkjenn begge — uten dem kan ikke appen høre noe.
 
-4. **Gi tillatelser.** macOS spør om mikrofontilgang og skjermopptak (nødvendig for systemlyd). Godkjenn begge — uten dem kan ikke appen høre noe.
+4. **Last ned transkripsjonsmotoren.** Første gang starter appen en nedlasting på ca. 1 GB (NB-Whisper large). Den lagres lokalt og gjenbrukes for alltid. Ha tålmodighet — det er en engangsjobb.
 
-5. **Last ned transkripsjonskmodellen.** Første gang starter appen en nedlasting på ca. 1 GB (NB-Whisper large). Den lagres lokalt og gjenbrukes for alltid. Ha tålmodighet — det er en engangsjobb.
-
-6. **Trykk Spill inn. Det er det.** Appen transkriberer i sanntid. Når møtet er ferdig, trykker du Stopp, og du får transkript pluss valgfritt sammendrag rett i grensesnittet.
+5. **Trykk Spill inn. Det er det.** Appen transkriberer i sanntid. Når møtet er ferdig, trykker du Stopp, og du får transkript pluss valgfritt sammendrag rett i grensesnittet.
 
 ---
 
@@ -73,7 +71,7 @@ Alt skjer på din maskin. Appen har ingen utgående nettverksforbindelser med mi
 ## Ofte stilte spørsmål
 
 **Er det virkelig gratis?**
-Ja. Referat er MIT-lisensiert og åpen kildekode. Transkripsjonskmodellene er offentlig finansiert (Nasjonalbiblioteket), og det er Macen din som gjør jobben. Det koster ingenting å kjøre.
+Ja. Referat er MIT-lisensiert og åpen kildekode. Transkripsjonsmotorene er offentlig finansiert (Nasjonalbiblioteket), og det er Macen din som gjør jobben. Det koster ingenting å kjøre.
 
 **Hva sendes til skyen?**
 Ingenting — med mindre du selv legger inn en ekstern API-nøkkel (Claude, OpenAI e.l.) for sammendrag. Transkripsjonen skjer alltid lokalt uansett.
@@ -86,9 +84,11 @@ Ikke ennå. Se [veikart](#veikart).
 
 ---
 
-## Følgesvenn: meetily-mcp
+## MCP-integrasjon (Claude-kobling)
 
-Et MCP-serverprosjekt — **meetily-mcp** — som lar Claude søke gjennom møtene dine, er på vei til denne repo-familien. Hold øye med [releases](https://github.com/ivaragentik/referat/releases). <!-- TODO: oppdater lenke -->
+Referat leveres med innebygd MCP-server som lar Claude søke gjennom møtene og referatene dine.
+
+**Kom i gang:** Åpne appen → Innstillinger → Generelt → «Installer Claude-kobling». Alternativt: last ned `referat.mcpb` fra [Releases-siden](https://github.com/ivaragentik/referat/releases) og installer manuelt.
 
 ---
 
@@ -106,12 +106,11 @@ Transcripts and recordings are stored locally in SQLite (`~/Library/Application 
 
 ### Quick start (English)
 
-1. Download the `.dmg` from [Releases](https://github.com/ivaragentik/referat/releases) <!-- TODO: update link -->
-2. Drag **Referat** to Applications
-3. **First launch: right-click → Open** (the app is unsigned — see [Roadmap](#roadmap))
-4. Grant microphone and screen recording permissions
-5. Download the transcription model (~1 GB, one-time)
-6. Hit Record
+1. Download the `.dmg` from [Releases](https://github.com/ivaragentik/referat/releases)
+2. Open `.dmg`, drag **Referat** to Applications, double-click. The app is signed and notarised — no Gatekeeper workaround needed.
+3. Grant microphone and screen recording permissions
+4. Download the transcription model (~1 GB, one-time)
+5. Hit Record
 
 ### How it works
 
@@ -161,10 +160,10 @@ See [`docs/BUILDING.md`](docs/BUILDING.md) for full build options including CPU-
 
 ## Veikart / Roadmap
 
-- [ ] Signering og notarisering (Apple-godkjent bygg — ingen høyreklikk-dans ved oppstart)
+- [x] Signering og notarisering (Apple-godkjent bygg — ingen høyreklikk-dans ved oppstart)
 - [ ] Auto-oppdatering (Sparkle / Tauri updater)
 - [ ] Windows-støtte
-- [ ] meetily-mcp: MCP-server slik at Claude kan søke i møtene dine
+- [x] MCP-server slik at Claude kan søke i møtene dine (tilgjengelig via Innstillinger → Generelt → «Installer Claude-kobling»)
 
 ---
 

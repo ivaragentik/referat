@@ -5,7 +5,6 @@ import { Switch } from "./ui/switch"
 import { FolderOpen } from "lucide-react"
 import { invoke } from "@tauri-apps/api/core"
 import Analytics from "@/lib/analytics"
-import AnalyticsConsentSwitch from "./AnalyticsConsentSwitch"
 import { useConfig, NotificationSettings } from "@/contexts/ConfigContext"
 import { ClaudeConnector } from "./ClaudeConnector"
 
@@ -221,9 +220,9 @@ export function PreferenceSettings() {
         </div>
       </div>
 
-      {/* Analytics Section */}
+      {/* Privacy notice */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <AnalyticsConsentSwitch />
+        <p className="text-sm text-gray-700">🔒 Ingen sporing — Referat sender ingen data fra din Mac.</p>
       </div>
 
       {/* Claude MCP Connector Section */}

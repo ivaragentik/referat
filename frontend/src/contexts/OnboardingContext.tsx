@@ -5,8 +5,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { PermissionStatus, OnboardingPermissions } from '@/types/onboarding';
 import { resolveOnboardingSummaryModelStatus } from '@/lib/onboarding-summary-model';
-
-const PARAKEET_MODEL = 'parakeet-tdt-0.6b-v3-int8';
+import { DEFAULT_WHISPER_MODEL } from '@/constants/modelDefaults';
 
 interface OnboardingStatus {
   version: string;
@@ -232,7 +231,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     };
   }, [currentStep, parakeetDownloaded, summaryModelDownloaded, completed]);
 
-  // Listen to Parakeet download progress
+  // Listen to Whisper download progress (the Norwegian default transcription model)
   useEffect(() => {
     const unlisten = listen<{
       modelName: string;
@@ -242,10 +241,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       speed_mbps?: number;
       status?: string;
     }>(
-      'parakeet-model-download-progress',
+      'model-download-progress',
       (event) => {
         const { modelName, progress, downloaded_mb, total_mb, speed_mbps, status } = event.payload;
-        if (modelName === PARAKEET_MODEL) {
+        if (modelName === DEFAULT_WHISPER_MODEL) {
           setParakeetProgress(progress);
           setParakeetProgressInfo({
             percent: progress,
@@ -261,10 +260,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     );
 
     const unlistenComplete = listen<{ modelName: string }>(
-      'parakeet-model-download-complete',
+      'model-download-complete',
       (event) => {
         const { modelName } = event.payload;
-        if (modelName === PARAKEET_MODEL) {
+        if (modelName === DEFAULT_WHISPER_MODEL) {
           setParakeetDownloaded(true);
           setParakeetProgress(100);
         }
@@ -272,11 +271,11 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     );
 
     const unlistenError = listen<{ modelName: string; error: string }>(
-      'parakeet-model-download-error',
+      'model-download-error',
       (event) => {
         const { modelName } = event.payload;
-        if (modelName === PARAKEET_MODEL) {
-          console.error('Parakeet download error:', event.payload.error);
+        if (modelName === DEFAULT_WHISPER_MODEL) {
+          console.error('Whisper download error:', event.payload.error);
         }
       }
     );
@@ -379,13 +378,13 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     let summaryModelDownloaded = false;
     let selectedSummaryModel = '';
 
-    // Verify Parakeet model exists on disk
+    // Verify Whisper model (Norwegian default) exists on disk
     try {
-      await invoke('parakeet_init');
-      parakeetDownloaded = await invoke<boolean>('parakeet_has_available_models');
-      console.log('[OnboardingContext] Parakeet verified on disk:', parakeetDownloaded);
+      await invoke('whisper_init');
+      parakeetDownloaded = await invoke<boolean>('whisper_has_available_models');
+      console.log('[OnboardingContext] Whisper model verified on disk:', parakeetDownloaded);
     } catch (error) {
-      console.warn('[OnboardingContext] Failed to verify Parakeet:', error);
+      console.warn('[OnboardingContext] Failed to verify Whisper model:', error);
       parakeetDownloaded = false;
     }
 
@@ -516,10 +515,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     });
 
     try {
-      const shouldStartParakeet = includeParakeet && !parakeetDownloaded;
+      // Whisper download is now managed directly in DownloadProgressStep — not via this method
       const shouldStartSummary = includeSummary && !summaryModelDownloaded && !!summaryModel;
 
-      if (!shouldStartParakeet && !shouldStartSummary) {
+      if (!shouldStartSummary) {
         if (includeSummary && !summaryModelDownloaded && !summaryModel) {
           console.warn('[OnboardingContext] Summary Model download skipped until recommendation is loaded');
         }
@@ -527,13 +526,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       }
 
       setIsBackgroundDownloading(true);
-
-      // Start Parakeet download first (speech recognition - always required)
-      if (shouldStartParakeet) {
-        console.log('[OnboardingContext] Starting Parakeet download');
-        invoke('parakeet_download_model', { modelName: PARAKEET_MODEL })
-          .catch(err => console.error('[OnboardingContext] Parakeet download failed:', err));
-      }
 
       // Start selected Summary Model download immediately so completion cannot race the request.
       if (shouldStartSummary && summaryModel) {
@@ -549,25 +541,22 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   // Check if any models are currently downloading (for re-entry)
   const checkActiveDownloads = async () => {
     try {
-      const models = await invoke<any[]>('parakeet_get_available_models');
+      const models = await invoke<any[]>('whisper_get_available_models');
       const isDownloading = models.some(m => m.status && (typeof m.status === 'object' ? 'Downloading' in m.status : m.status === 'Downloading'));
-      
+
       if (isDownloading) {
-        console.log('[OnboardingContext] Detected active background downloads on mount');
+        console.log('[OnboardingContext] Detected active Whisper downloads on mount');
         setIsBackgroundDownloading(true);
       }
-      
-      // Also check for Built-in AI downloads if possible (though less critical as Parakeet is the main blocker)
-      
     } catch (error) {
       console.warn('[OnboardingContext] Failed to check active downloads:', error);
     }
   };
 
   const retryParakeetDownload = async () => {
-    console.log('[OnboardingContext] Retrying Parakeet download');
+    console.log('[OnboardingContext] Retrying Whisper download');
     try {
-      await invoke('parakeet_retry_download', { modelName: PARAKEET_MODEL });
+      await invoke('whisper_download_model', { modelName: DEFAULT_WHISPER_MODEL });
     } catch (error) {
       console.error('[OnboardingContext] Retry failed:', error);
       throw error;
