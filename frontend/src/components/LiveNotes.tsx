@@ -23,115 +23,135 @@ interface LiveNotesProps {
 export function LiveNotes({ meetingId }: LiveNotesProps) {
   const [notes, setNotes] = useState<string>('');
 
-  // Track whether we have loaded the initial value (avoid overwriting on re-renders).
-  const loadedRef = useRef(false);
-
-  // Track the previous meeting id so we can detect the placeholder → real transition.
+  // Track the previous meeting id so we can detect transitions.
   const prevMeetingIdRef = useRef<string>(meetingId);
 
   // Debounce timer for autosave to Tauri backend.
   const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ─── Initial hydration ──────────────────────────────────────────────────────
-
+  // Per-meeting hydration + migration
+  //
+  // This effect runs on every meetingId change (including the reset back to the
+  // placeholder when navigating to the home page for a new session). This replaces
+  // the old one-shot loadedRef guard that caused notes to bleed between meetings:
+  // the guard prevented re-loading when meetingId transitioned real-id → placeholder,
+  // so meeting N's notes would still be visible when starting meeting N+1.
+  //
+  // Transitions handled:
+  //   placeholder → real id : migrate the live buffer into the saved meeting (crash-safe).
+  //   real id → placeholder  : reset to the live session buffer (empty for a fresh session).
+  //   initial mount          : load the correct buffer for the current id.
   useEffect(() => {
-    if (loadedRef.current) return;
-    loadedRef.current = true;
+    const prevId = prevMeetingIdRef.current;
 
-    const loadNotes = async () => {
-      if (meetingId !== PLACEHOLDER_ID) {
-        // Real id on mount — prefer DB, fall back to localStorage.
+    // --- Placeholder → real id: migration -----------------------------------
+    // When a recording stops, useRecordingStop calls setCurrentMeeting({id: realId}).
+    // At that moment we read the LIVE_SESSION_KEY from localStorage — the source of
+    // truth for what was typed during this session — and migrate it to the real id.
+    // We read from localStorage rather than React state to avoid a stale-closure
+    // race across the async migration function.
+    if (prevId === PLACEHOLDER_ID && meetingId !== PLACEHOLDER_ID) {
+      prevMeetingIdRef.current = meetingId;
+
+      const liveBuffer = localStorage.getItem(LIVE_SESSION_KEY) ?? '';
+
+      const migrate = async () => {
+        if (!liveBuffer.trim()) {
+          // Nothing typed during this session — nothing to migrate.
+          return;
+        }
+
+        let finalNotes = liveBuffer;
+
+        // Check if the DB already has notes for this real meeting id (e.g. from
+        // a previous partial save or crash recovery).
         try {
           const dbNotes = await invoke<string | null>('get_meeting_notes', {
             meetingId,
           });
-          if (dbNotes && dbNotes.trim().length > 0) {
-            setNotes(dbNotes);
-            // Mirror to localStorage for crash safety.
-            localStorage.setItem(storageKey(meetingId), dbNotes);
-            return;
+          if (dbNotes && dbNotes.trim().length >= liveBuffer.trim().length) {
+            // DB already has the same or more content — prefer DB.
+            finalNotes = dbNotes;
           }
         } catch (err) {
-          console.warn('[LiveNotes] get_meeting_notes failed on mount:', err);
+          console.warn('[LiveNotes] get_meeting_notes failed during migration:', err);
         }
-        // Fall back to localStorage (real-id key, then live-session key).
-        const ls =
-          localStorage.getItem(storageKey(meetingId)) ??
-          localStorage.getItem(LIVE_SESSION_KEY) ??
-          '';
-        setNotes(ls);
-      } else {
-        // Placeholder id — use the live session key.
-        const ls = localStorage.getItem(LIVE_SESSION_KEY) ?? '';
-        setNotes(ls);
-      }
-    };
 
-    loadNotes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally run only once on mount
+        // Flush buffered notes into the saved meeting.
+        try {
+          await invoke('save_meeting_notes', {
+            meetingId,
+            notesMarkdown: finalNotes,
+          });
+        } catch (err) {
+          console.warn('[LiveNotes] save_meeting_notes failed during migration:', err);
+        }
 
-  // ─── Placeholder → real id migration ────────────────────────────────────────
+        // Move localStorage buffer to the real-id key and clear the live key.
+        localStorage.setItem(storageKey(meetingId), finalNotes);
+        localStorage.removeItem(LIVE_SESSION_KEY);
 
-  useEffect(() => {
-    const prevId = prevMeetingIdRef.current;
+        // Sync React state with the final merged value.
+        setNotes(finalNotes);
+      };
+
+      migrate();
+      return;
+    }
+
+    // --- Any other id change (real → placeholder, real → different real, or
+    //     initial mount): load the correct buffer for the new id. -------------
     prevMeetingIdRef.current = meetingId;
 
-    // Only act when transitioning FROM the placeholder TO a real id.
-    if (prevId !== PLACEHOLDER_ID || meetingId === PLACEHOLDER_ID) return;
+    // Cancel any pending autosave for the previous meeting before loading new content.
+    if (autosaveTimerRef.current) {
+      clearTimeout(autosaveTimerRef.current);
+      autosaveTimerRef.current = null;
+    }
 
-    const migrate = async () => {
-      // Read whatever we have buffered so far (state value + localStorage).
-      const liveBuffer =
-        notes ||
-        localStorage.getItem(LIVE_SESSION_KEY) ||
-        '';
-
-      if (!liveBuffer.trim()) {
-        // Nothing to migrate.
+    const loadNotes = async () => {
+      if (meetingId === PLACEHOLDER_ID) {
+        // Placeholder id — use the live session key.
+        // If nothing is stored (fresh session after a completed meeting), start blank.
+        const ls = localStorage.getItem(LIVE_SESSION_KEY) ?? '';
+        setNotes(ls);
         return;
       }
 
-      let finalNotes = liveBuffer;
-
-      // Check if the DB already has notes for this real meeting id.
+      // Real id — prefer DB, fall back to localStorage.
       try {
         const dbNotes = await invoke<string | null>('get_meeting_notes', {
           meetingId,
         });
-        if (dbNotes && dbNotes.trim().length >= liveBuffer.trim().length) {
-          // DB already has the same or more content — prefer DB.
-          finalNotes = dbNotes;
+        if (dbNotes && dbNotes.trim().length > 0) {
+          setNotes(dbNotes);
+          // Mirror to localStorage for crash safety.
+          localStorage.setItem(storageKey(meetingId), dbNotes);
+          return;
         }
       } catch (err) {
-        console.warn('[LiveNotes] get_meeting_notes failed during migration:', err);
+        console.warn('[LiveNotes] get_meeting_notes failed on id change:', err);
       }
-
-      // Flush buffered notes into the saved meeting.
-      try {
-        await invoke('save_meeting_notes', {
-          meetingId,
-          notesMarkdown: finalNotes,
-        });
-      } catch (err) {
-        console.warn('[LiveNotes] save_meeting_notes failed during migration:', err);
-      }
-
-      // Move localStorage buffer to the real-id key.
-      localStorage.setItem(storageKey(meetingId), finalNotes);
-      localStorage.removeItem(LIVE_SESSION_KEY);
-
-      // Sync React state with the final merged value.
-      setNotes(finalNotes);
+      // Fall back to localStorage (real-id key only — never leak the live buffer
+      // into a different real meeting).
+      const ls = localStorage.getItem(storageKey(meetingId)) ?? '';
+      setNotes(ls);
     };
 
-    migrate();
-  // notes is intentionally included so we read the latest value when the id changes.
+    loadNotes();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [meetingId]);
+  }, [meetingId]); // Re-run on every meetingId change to isolate per-meeting notes
 
-  // ─── Autosave ───────────────────────────────────────────────────────────────
+  // Cleanup debounce timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+      }
+    };
+  }, []);
 
+  // Autosave (debounced)
   const scheduleAutosave = useCallback(
     (currentNotes: string, currentMeetingId: string) => {
       if (autosaveTimerRef.current) {
@@ -158,17 +178,7 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
     []
   );
 
-  // Cleanup debounce timer on unmount.
-  useEffect(() => {
-    return () => {
-      if (autosaveTimerRef.current) {
-        clearTimeout(autosaveTimerRef.current);
-      }
-    };
-  }, []);
-
-  // ─── Change handler ─────────────────────────────────────────────────────────
-
+  // Change handler
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = e.target.value;
@@ -178,8 +188,7 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
     [meetingId, scheduleAutosave]
   );
 
-  // ─── Render ─────────────────────────────────────────────────────────────────
-
+  // Render
   return (
     <div className="flex flex-col flex-1 overflow-y-auto pb-20">
       <div className="flex justify-center px-6 pt-6 flex-1">

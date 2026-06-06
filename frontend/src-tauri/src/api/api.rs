@@ -1174,22 +1174,46 @@ pub async fn install_claude_connector<R: Runtime>(app: AppHandle<R>) -> Result<(
     use std::process::Command;
     use tauri::Manager;
 
-    // Resolve the bundled resource path at runtime
-    let resource_dir = app
+    // The Claude connector (.mcpb) is NOT bundled inside the app: its native
+    // SQLite module must be ad-hoc signed (no Team ID) so Claude Desktop can
+    // load it, but Apple notarization of this app would force a Developer-ID
+    // signature that Claude then rejects. So we fetch the standalone, ad-hoc
+    // signed .mcpb from the latest GitHub release on demand and hand it to Claude.
+    const MCPB_URL: &str =
+        "https://github.com/ivaragentik/referat/releases/latest/download/referat.mcpb";
+
+    let dest = app
         .path()
-        .resource_dir()
-        .map_err(|e| format!("Kunne ikke finne ressursmappe: {}", e))?;
+        .app_data_dir()
+        .map_err(|e| format!("Kunne ikke finne datamappe: {}", e))?
+        .join("referat.mcpb");
 
-    let mcpb_path = resource_dir.join("resources").join("referat.mcpb");
+    log_info!("install_claude_connector: downloading {} -> {:?}", MCPB_URL, dest);
 
-    log_info!("install_claude_connector: opening {:?}", mcpb_path);
+    // Download (small ~1MB file). Network is required only for this one action.
+    let bytes = reqwest::Client::new()
+        .get(MCPB_URL)
+        .send()
+        .await
+        .and_then(|r| r.error_for_status())
+        .map_err(|e| {
+            log_error!("connector download failed: {}", e);
+            "Kunne ikke laste ned Claude-koblingen. Sjekk at du er koblet til internett.".to_string()
+        })?
+        .bytes()
+        .await
+        .map_err(|e| {
+            log_error!("connector body read failed: {}", e);
+            "Kunne ikke laste ned Claude-koblingen. Prøv igjen.".to_string()
+        })?;
 
-    if !mcpb_path.exists() {
-        return Err(format!(
-            "Filen referat.mcpb ble ikke funnet på {:?}",
-            mcpb_path
-        ));
+    if let Some(parent) = dest.parent() {
+        let _ = std::fs::create_dir_all(parent);
     }
+    std::fs::write(&dest, &bytes)
+        .map_err(|e| format!("Kunne ikke lagre koblingen: {}", e))?;
+
+    let mcpb_path = dest;
 
     let result = if cfg!(target_os = "windows") {
         Command::new("cmd")

@@ -34,7 +34,7 @@ export function useRecordingStart(
   const [isAutoStarting, setIsAutoStarting] = useState(false);
 
   const { clearTranscripts, setMeetingTitle } = useTranscripts();
-  const { setIsMeetingActive } = useSidebar();
+  const { setIsMeetingActive, setCurrentMeeting } = useSidebar();
   const { selectedDevices } = useConfig();
   const { setStatus } = useRecordingState();
 
@@ -150,6 +150,10 @@ export function useRecordingStart(
       // Update state after successful backend start
       // Note: RECORDING status will be set by RecordingStateContext event listener
       console.log('Setting isRecordingState to true');
+      // Reset currentMeeting to the placeholder so LiveNotes starts blank for the new session.
+      setCurrentMeeting({ id: 'intro-call', title: '+ Nytt møte' });
+      // Clear any leftover live notes buffer from a previous session.
+      localStorage.removeItem('referat-notes-live');
       setIsRecording(true); // This will also update the sidebar via the useEffect
       clearTranscripts(); // Clear previous transcripts when starting new recording
       setIsMeetingActive(true);
@@ -165,7 +169,7 @@ export function useRecordingStart(
       // Re-throw so RecordingControls can handle device-specific errors
       throw error;
     }
-  }, [generateMeetingTitle, setMeetingTitle, setIsRecording, clearTranscripts, setIsMeetingActive, checkParakeetReady, checkIfModelDownloading, selectedDevices, showModal, setStatus]);
+  }, [generateMeetingTitle, setMeetingTitle, setIsRecording, clearTranscripts, setIsMeetingActive, setCurrentMeeting, checkParakeetReady, checkIfModelDownloading, selectedDevices, showModal, setStatus]);
 
   // Check for autoStartRecording flag and start recording automatically
   useEffect(() => {
@@ -218,6 +222,10 @@ export function useRecordingStart(
             // Update UI state after successful backend start
             // Note: RECORDING status will be set by RecordingStateContext event listener
             setMeetingTitle(generatedMeetingTitle);
+            // Reset currentMeeting to the placeholder so LiveNotes starts blank for the new session.
+            setCurrentMeeting({ id: 'intro-call', title: '+ Nytt møte' });
+            // Clear any leftover live notes buffer from a previous session.
+            localStorage.removeItem('referat-notes-live');
             setIsRecording(true);
             clearTranscripts();
             setIsMeetingActive(true);
@@ -251,6 +259,7 @@ export function useRecordingStart(
     checkIfModelDownloading,
     showModal,
     setStatus,
+    setCurrentMeeting,
   ]);
 
   // Listen for direct recording trigger from sidebar when already on home page
@@ -304,6 +313,10 @@ export function useRecordingStart(
         // Update UI state after successful backend start
         // Note: RECORDING status will be set by RecordingStateContext event listener
         setMeetingTitle(generatedMeetingTitle);
+        // Reset currentMeeting to the placeholder so LiveNotes starts blank for the new session.
+        setCurrentMeeting({ id: 'intro-call', title: '+ Nytt møte' });
+        // Clear any leftover live notes buffer from a previous session.
+        localStorage.removeItem('referat-notes-live');
         setIsRecording(true);
         clearTranscripts();
         setIsMeetingActive(true);
@@ -339,6 +352,7 @@ export function useRecordingStart(
     checkIfModelDownloading,
     showModal,
     setStatus,
+    setCurrentMeeting,
   ]);
 
   return {
