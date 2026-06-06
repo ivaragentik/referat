@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
+// left-panel tab state type
+type LeftTab = 'transcript' | 'notes';
 import { motion } from 'framer-motion';
 import { Summary, SummaryResponse } from '@/types';
 import { useSidebar } from '@/components/Sidebar/SidebarProvider';
@@ -8,6 +10,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { toast } from 'sonner';
 import { TranscriptPanel } from '@/components/MeetingDetails/TranscriptPanel';
 import { SummaryPanel } from '@/components/MeetingDetails/SummaryPanel';
+import { NotesPanel } from '@/components/MeetingDetails/NotesPanel';
 import { ModelConfig } from '@/components/ModelSettingsModal';
 
 // Custom hooks
@@ -57,6 +60,7 @@ export default function PageContent({
   const [customPrompt, setCustomPrompt] = useState<string>('');
   const [isRecording] = useState(false);
   const [summaryResponse] = useState<SummaryResponse | null>(null);
+  const [leftTab, setLeftTab] = useState<LeftTab>('transcript');
 
   // Ref to store the modal open function from SummaryGeneratorButtonGroup
   const openModelSettingsRef = useRef<(() => void) | null>(null);
@@ -171,27 +175,61 @@ export default function PageContent({
       className="flex flex-col h-screen bg-gray-50"
     >
       <div className="flex flex-1 overflow-hidden">
-        <TranscriptPanel
-          transcripts={meetingData.transcripts}
-          customPrompt={customPrompt}
-          onPromptChange={setCustomPrompt}
-          onCopyTranscript={copyOperations.handleCopyTranscript}
-          onOpenMeetingFolder={meetingOperations.handleOpenMeetingFolder}
-          isRecording={isRecording}
-          disableAutoScroll={true}
-          // Pagination props for efficient loading
-          usePagination={true}
-          segments={segments}
-          hasMore={hasMore}
-          isLoadingMore={isLoadingMore}
-          totalCount={totalCount}
-          loadedCount={loadedCount}
-          onLoadMore={onLoadMore}
-          // Retranscription props
-          meetingId={meeting.id}
-          meetingFolderPath={meeting.folder_path}
-          onRefetchTranscripts={onRefetchTranscripts}
-        />
+        {/* Left panel: tab strip + content */}
+        <div className="hidden md:flex md:w-1/4 lg:w-1/3 min-w-0 border-r border-gray-200 bg-white flex-col relative shrink-0">
+          {/* Tab strip */}
+          <div className="flex border-b border-gray-200 bg-white flex-shrink-0">
+            <button
+              onClick={() => setLeftTab('transcript')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors focus:outline-none ${
+                leftTab === 'transcript'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Transkripsjon
+            </button>
+            <button
+              onClick={() => setLeftTab('notes')}
+              className={`flex-1 py-2 text-xs font-medium transition-colors focus:outline-none ${
+                leftTab === 'notes'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Mine notater
+            </button>
+          </div>
+
+          {/* Panel content — each branch fills the remaining space */}
+          {leftTab === 'transcript' ? (
+            <TranscriptPanel
+              transcripts={meetingData.transcripts}
+              customPrompt={customPrompt}
+              onPromptChange={setCustomPrompt}
+              onCopyTranscript={copyOperations.handleCopyTranscript}
+              onOpenMeetingFolder={meetingOperations.handleOpenMeetingFolder}
+              isRecording={isRecording}
+              disableAutoScroll={true}
+              usePagination={true}
+              segments={segments}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              totalCount={totalCount}
+              loadedCount={loadedCount}
+              onLoadMore={onLoadMore}
+              meetingId={meeting.id}
+              meetingFolderPath={meeting.folder_path}
+              onRefetchTranscripts={onRefetchTranscripts}
+              insideTabContainer={true}
+            />
+          ) : (
+            <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <NotesPanel meetingId={meeting.id} />
+            </div>
+          )}
+        </div>
+
         <SummaryPanel
           meeting={meeting}
           meetingTitle={meetingData.meetingTitle}

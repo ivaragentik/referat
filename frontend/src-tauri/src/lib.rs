@@ -632,6 +632,9 @@ pub fn run() {
             api::api_save_custom_openai_config,
             api::api_get_custom_openai_config,
             api::api_test_custom_openai_connection,
+            // Personal notes commands
+            api::save_meeting_notes,
+            api::get_meeting_notes,
             // Summary commands
             summary::commands::api_process_transcript,
             summary::commands::api_get_summary,

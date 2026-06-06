@@ -8,7 +8,9 @@ use crate::{
     database::{
         models::MeetingModel,
         repositories::{
-            meeting::MeetingsRepository, setting::SettingsRepository,
+            meeting::MeetingsRepository,
+            meeting_notes::MeetingNotesRepository,
+            setting::SettingsRepository,
             transcript::TranscriptsRepository,
         },
     },
@@ -1318,6 +1320,58 @@ pub async fn api_get_custom_openai_config<R: Runtime>(
             Err(format!("Failed to get custom OpenAI configuration: {}", e))
         }
     }
+}
+
+// ===== PERSONAL NOTES COMMANDS =====
+
+/// UPSERT the user's rough meeting notes for a given meeting.
+///
+/// Called by the «Referat» notes panel whenever the user saves edits.
+/// Sets `created_at` on first write; only updates `notes_markdown` and
+/// `updated_at` on subsequent writes.
+#[tauri::command]
+pub async fn save_meeting_notes<R: Runtime>(
+    _app: AppHandle<R>,
+    state: tauri::State<'_, AppState>,
+    meeting_id: String,
+    notes_markdown: String,
+) -> Result<(), String> {
+    log_info!(
+        "save_meeting_notes called for meeting_id: {}",
+        meeting_id
+    );
+    let pool = state.db_manager.pool();
+
+    MeetingNotesRepository::save_notes(pool, &meeting_id, &notes_markdown)
+        .await
+        .map_err(|e| {
+            log_error!("Failed to save notes for meeting {}: {}", meeting_id, e);
+            format!("Failed to save meeting notes: {}", e)
+        })
+}
+
+/// Fetch the user's raw notes_markdown for a meeting.
+///
+/// Returns `Ok(None)` when the meeting has no notes yet (the frontend
+/// should treat this as an empty editor, not an error).
+#[tauri::command]
+pub async fn get_meeting_notes<R: Runtime>(
+    _app: AppHandle<R>,
+    state: tauri::State<'_, AppState>,
+    meeting_id: String,
+) -> Result<Option<String>, String> {
+    log_info!(
+        "get_meeting_notes called for meeting_id: {}",
+        meeting_id
+    );
+    let pool = state.db_manager.pool();
+
+    MeetingNotesRepository::get_notes(pool, &meeting_id)
+        .await
+        .map_err(|e| {
+            log_error!("Failed to get notes for meeting {}: {}", meeting_id, e);
+            format!("Failed to get meeting notes: {}", e)
+        })
 }
 
 /// Tests the connection to a custom OpenAI-compatible endpoint

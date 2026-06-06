@@ -28,6 +28,12 @@ interface TranscriptPanelProps {
   meetingId?: string;
   meetingFolderPath?: string | null;
   onRefetchTranscripts?: () => Promise<void>;
+
+  /**
+   * When true, the component is rendered inside an external tab container and
+   * should not render its own outer flex wrapper (the parent owns sizing/borders).
+   */
+  insideTabContainer?: boolean;
 }
 
 export function TranscriptPanel({
@@ -48,6 +54,7 @@ export function TranscriptPanel({
   meetingId,
   meetingFolderPath,
   onRefetchTranscripts,
+  insideTabContainer = false,
 }: TranscriptPanelProps) {
   // Convert transcripts to segments if pagination is not used but we want virtualization
   const convertedSegments = useMemo(() => {
@@ -64,8 +71,8 @@ export function TranscriptPanel({
     }));
   }, [transcripts, usePagination, segments]);
 
-  return (
-    <div className="hidden md:flex md:w-1/4 lg:w-1/3 min-w-0 border-r border-gray-200 bg-white flex-col relative shrink-0">
+  const inner = (
+    <>
       {/* Title area */}
       <div className="p-4 border-b border-gray-200">
         <TranscriptButtonGroup
@@ -108,6 +115,18 @@ export function TranscriptPanel({
           />
         </div>
       )}
+    </>
+  );
+
+  // When rendered inside the tab container in page-content, the parent owns sizing
+  // and we should not add an extra flex wrapper.
+  if (insideTabContainer) {
+    return <div className="flex flex-col flex-1 min-h-0 overflow-hidden h-full">{inner}</div>;
+  }
+
+  return (
+    <div className="hidden md:flex md:w-1/4 lg:w-1/3 min-w-0 border-r border-gray-200 bg-white flex-col relative shrink-0">
+      {inner}
     </div>
   );
 }

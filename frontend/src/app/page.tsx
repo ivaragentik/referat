@@ -18,15 +18,19 @@ import { useRecordingStart } from '@/hooks/useRecordingStart';
 import { useRecordingStop } from '@/hooks/useRecordingStop';
 import { useTranscriptRecovery } from '@/hooks/useTranscriptRecovery';
 import { TranscriptRecovery } from '@/components/TranscriptRecovery';
+import { LiveNotes } from '@/components/LiveNotes';
 import { indexedDBService } from '@/services/indexedDBService';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+
+type LiveTab = 'transkripsjon' | 'notater';
 
 export default function Home() {
   // Local page state (not moved to contexts)
   const [isRecording, setIsRecordingState] = useState(false);
   const [barHeights, setBarHeights] = useState(['58%', '76%', '58%']);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
+  const [liveTab, setLiveTab] = useState<LiveTab>('transkripsjon');
 
   // Use contexts for state management
   const { meetingTitle } = useTranscripts();
@@ -38,7 +42,7 @@ export default function Home() {
 
   // Hooks
   const { hasMicrophone } = usePermissionCheck();
-  const { setIsMeetingActive, isCollapsed: sidebarCollapsed, refetchMeetings } = useSidebar();
+  const { setIsMeetingActive, isCollapsed: sidebarCollapsed, refetchMeetings, currentMeeting } = useSidebar();
   const { modals, messages, showModal, hideModal } = useModalState(transcriptModelConfig);
   const { isRecordingDisabled, setIsRecordingDisabled } = useRecordingStateSync(isRecording, setIsRecordingState, setIsMeetingActive);
   const { handleRecordingStart } = useRecordingStart(isRecording, setIsRecordingState, showModal);
@@ -213,11 +217,50 @@ export default function Home() {
         onLoadPreview={loadMeetingTranscripts}
       />
       <div className="flex flex-1 overflow-hidden">
-        <TranscriptPanel
-          isProcessingStop={isProcessingStop}
-          isStopping={isStopping}
-          showModal={showModal}
-        />
+        {/* Live content area: toggle header + panel */}
+        <div className="w-full border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+          {/* Segmented toggle */}
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 pt-3 pb-2 flex justify-center">
+            <div className="inline-flex rounded-lg bg-gray-100 p-0.5 gap-0.5">
+              <button
+                type="button"
+                onClick={() => setLiveTab('transkripsjon')}
+                className={[
+                  'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-150',
+                  liveTab === 'transkripsjon'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700',
+                ].join(' ')}
+              >
+                Transkripsjon
+              </button>
+              <button
+                type="button"
+                onClick={() => setLiveTab('notater')}
+                className={[
+                  'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-150',
+                  liveTab === 'notater'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700',
+                ].join(' ')}
+              >
+                Notater
+              </button>
+            </div>
+          </div>
+
+          {/* Panel content — keep TranscriptPanel mounted (manages scroll refs + listeners) */}
+          <div className={liveTab === 'transkripsjon' ? 'flex flex-col flex-1 overflow-hidden' : 'hidden'}>
+            <TranscriptPanel
+              isProcessingStop={isProcessingStop}
+              isStopping={isStopping}
+              showModal={showModal}
+            />
+          </div>
+          <div className={liveTab === 'notater' ? 'flex flex-col flex-1 overflow-hidden' : 'hidden'}>
+            <LiveNotes meetingId={currentMeeting?.id ?? 'intro-call'} />
+          </div>
+        </div>
 
         {/* Recording controls - only show when permissions are granted or already recording and not showing status messages */}
         {(hasMicrophone || isRecording) &&

@@ -1,5 +1,6 @@
 use crate::database::repositories::{
     meeting::MeetingsRepository,
+    meeting_notes::MeetingNotesRepository,
     summary::SummaryProcessesRepository, transcript_chunk::TranscriptChunksRepository,
 };
 use crate::state::AppState;
@@ -347,7 +348,45 @@ pub async fn api_process_transcript<R: Runtime>(
     );
 
     let pool = state.db_manager.pool().clone();
-    let final_prompt = custom_prompt.unwrap_or_else(|| "".to_string());
+
+    // ── Notes injection ──────────────────────────────────────────────────────
+    // Fetch any user-written notes for this meeting and weave them into the
+    // custom_prompt that reaches processor.rs (where it is wrapped in
+    // <user_context> and appended to the transcript).  Non-fatal: a DB error
+    // must never block summary generation.
+    let user_notes: Option<String> = match MeetingNotesRepository::get_notes(&pool, &m_id).await {
+        Ok(notes) => notes.filter(|n| !n.trim().is_empty()),
+        Err(e) => {
+            log_warn!(
+                "Could not load notes for meeting {} (non-fatal, proceeding without): {}",
+                &m_id, e
+            );
+            None
+        }
+    };
+
+    let final_prompt = {
+        let base_prompt = custom_prompt.unwrap_or_default();
+        if let Some(notes) = user_notes {
+            // Prepend a bilingual instruction block so the model honours the notes
+            // while still treating the transcript as the primary content source.
+            let notes_block = format!(
+                "BRUKERENS EGNE NOTATER FRA MØTET \
+(vev disse sammen med transkripsjonen og løft dem til et helhetlig, polert referat \
+\u{2014} ikke bare gjenta dem, men utdyp med kontekst fra transkripsjonen der det er relevant):\n\
+{notes}\n\n"
+            );
+            if base_prompt.is_empty() {
+                notes_block
+            } else {
+                format!("{notes_block}{base_prompt}")
+            }
+        } else {
+            base_prompt
+        }
+    };
+    // ── end notes injection ──────────────────────────────────────────────────
+
     let final_template_id = template_id.unwrap_or_else(|| "daily_standup".to_string());
 
     // Normalise empty / whitespace-only to None so "" and null behave identically
