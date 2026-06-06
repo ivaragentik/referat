@@ -50,6 +50,20 @@ export interface TranscribeAudioRequest {
 
 // Model configuration for different use cases
 export const MODEL_CONFIGS: Record<string, Partial<ModelInfo>> = {
+  // NB-Whisper — Norwegian Bokmål finetuned models (NbAiLab / Nasjonalbiblioteket)
+  'nb-whisper-large-q5_0': {
+    description: 'Norsk (bokmål) — NB-Whisper Large. Best Norwegian accuracy.',
+    size_mb: 1031,
+    accuracy: 'High',
+    speed: 'Slow'
+  },
+  'nb-whisper-medium-q5_0': {
+    description: 'Norsk (bokmål) — NB-Whisper Medium. Fast Norwegian transcription.',
+    size_mb: 514,
+    accuracy: 'High',
+    speed: 'Medium'
+  },
+
   // Standard f16 models (full precision)
   'large-v3': {
     description: 'Highest accuracy, best for important meetings. Slower processing.',
@@ -213,7 +227,9 @@ export function getModelTagline(modelName: string, speed: ProcessingSpeed, accur
 
   // Key feature based on model and accuracy
   let featureText = '';
-  if (baseName === 'large-v3') {
+  if (baseName.startsWith('nb-whisper')) {
+    featureText = 'Norsk bokmål (NB-Whisper)';
+  } else if (baseName === 'large-v3') {
     featureText = 'Most accurate';
   } else if (baseName === 'large-v3-turbo') {
     featureText = 'Best accuracy with speed';

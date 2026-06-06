@@ -5,9 +5,9 @@
 
 /**
  * Default Whisper model for transcription when no preference is configured.
- * This is the recommended balance of accuracy and speed.
+ * NB-Whisper Large gives the best Norwegian accuracy via NbAiLab's Norwegian Bokmål fine-tune.
  */
-export const DEFAULT_WHISPER_MODEL = 'large-v3-turbo';
+export const DEFAULT_WHISPER_MODEL = 'nb-whisper-large-q5_0';
 
 /**
  * Default Parakeet model for transcription when no preference is configured.
