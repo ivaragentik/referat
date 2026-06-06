@@ -1,26 +1,179 @@
 import React, { useState, useEffect } from "react";
 import { invoke } from '@tauri-apps/api/core';
 import { getVersion } from '@tauri-apps/api/app';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 import Image from 'next/image';
 import { Button } from './ui/button';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
+type UpdateState =
+  | { kind: 'idle' }
+  | { kind: 'checking' }
+  | { kind: 'up-to-date' }
+  | { kind: 'available'; version: string }
+  | { kind: 'downloading'; percentage: number }
+  | { kind: 'installing' }
+  | { kind: 'error'; message: string };
 
 export function About() {
     const [currentVersion, setCurrentVersion] = useState<string>('0.4.0');
+    const [updateState, setUpdateState] = useState<UpdateState>({ kind: 'idle' });
 
     useEffect(() => {
-        // Get current version on mount
         getVersion().then(setCurrentVersion).catch(console.error);
     }, []);
 
-    const handleViewLatestRelease = () => {
-        invoke('open_external_url', { url: 'https://github.com/ivaragentik/referat/releases/latest' })
-            .catch(console.error);
+    const handleCheckForUpdates = async () => {
+        setUpdateState({ kind: 'checking' });
+        try {
+            const update = await check();
+            if (update) {
+                setUpdateState({ kind: 'available', version: update.version });
+            } else {
+                setUpdateState({ kind: 'up-to-date' });
+                // Auto-clear the "up to date" notice after 4 seconds
+                setTimeout(() => {
+                    setUpdateState((prev) =>
+                        prev.kind === 'up-to-date' ? { kind: 'idle' } : prev
+                    );
+                }, 4000);
+            }
+        } catch (err: any) {
+            console.error('[About] Kunne ikke sjekke etter oppdateringer:', err);
+            setUpdateState({ kind: 'error', message: err?.message ?? 'Ukjent feil' });
+        }
+    };
+
+    const handleInstallUpdate = async (version: string) => {
+        setUpdateState({ kind: 'downloading', percentage: 0 });
+        try {
+            const update = await check();
+            if (!update) {
+                setUpdateState({ kind: 'error', message: 'Oppdatering ikke lenger tilgjengelig' });
+                return;
+            }
+
+            let downloaded = 0;
+            let contentLength = 0;
+
+            await update.downloadAndInstall((event) => {
+                switch (event.event) {
+                    case 'Started':
+                        contentLength = event.data.contentLength ?? 0;
+                        setUpdateState({ kind: 'downloading', percentage: 0 });
+                        break;
+                    case 'Progress':
+                        downloaded += event.data.chunkLength ?? 0;
+                        setUpdateState({
+                            kind: 'downloading',
+                            percentage: contentLength > 0
+                                ? Math.round((downloaded / contentLength) * 100)
+                                : 0,
+                        });
+                        break;
+                    case 'Finished':
+                        setUpdateState({ kind: 'installing' });
+                        break;
+                }
+            });
+
+            toast.success('Oppdatering installert. Appen starter på nytt…');
+            await relaunch();
+        } catch (err: any) {
+            console.error('[About] Oppdatering mislyktes:', err);
+            setUpdateState({ kind: 'error', message: err?.message ?? 'Ukjent feil' });
+            toast.error('Oppdatering mislyktes: ' + (err?.message ?? 'Ukjent feil'));
+        }
     };
 
     const handleAgentikClick = () => {
         invoke('open_external_url', { url: 'https://agentik.no' }).catch(console.error);
+    };
+
+    // ── Update button / status area ──────────────────────────────────────────
+    const renderUpdateArea = () => {
+        switch (updateState.kind) {
+            case 'idle':
+                return (
+                    <Button
+                        onClick={handleCheckForUpdates}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                    >
+                        Se etter oppdateringer
+                    </Button>
+                );
+
+            case 'checking':
+                return (
+                    <Button variant="outline" size="sm" className="text-xs" disabled>
+                        <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                        Sjekker…
+                    </Button>
+                );
+
+            case 'up-to-date':
+                return (
+                    <span className="text-xs text-green-600 font-medium">
+                        Du har nyeste versjon
+                    </span>
+                );
+
+            case 'available':
+                return (
+                    <Button
+                        onClick={() => handleInstallUpdate(updateState.version)}
+                        size="sm"
+                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        Oppdater til v{updateState.version}
+                    </Button>
+                );
+
+            case 'downloading':
+                return (
+                    <div className="flex flex-col items-center gap-1">
+                        <Button variant="outline" size="sm" className="text-xs" disabled>
+                            <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                            Laster ned oppdatering… {updateState.percentage}%
+                        </Button>
+                        <div className="w-48 bg-gray-200 rounded-full h-1.5">
+                            <div
+                                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                style={{ width: `${Math.min(updateState.percentage, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                );
+
+            case 'installing':
+                return (
+                    <Button variant="outline" size="sm" className="text-xs" disabled>
+                        <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                        Installerer – appen starter på nytt
+                    </Button>
+                );
+
+            case 'error':
+                return (
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-red-600">
+                            Kunne ikke se etter oppdateringer
+                        </span>
+                        <Button
+                            onClick={handleCheckForUpdates}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                        >
+                            Prøv igjen
+                        </Button>
+                    </div>
+                );
+        }
     };
 
     return (
@@ -40,16 +193,8 @@ export function About() {
                 <p className="text-medium text-gray-600 mt-1">
                     Møtenotater på norsk — helt lokalt på din Mac.
                 </p>
-                <div className="mt-3">
-                    <Button
-                        onClick={handleViewLatestRelease}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                    >
-                        <ExternalLink className="h-3 w-3 mr-2" />
-                        Se nyeste versjon
-                    </Button>
+                <div className="mt-3 flex flex-col items-center gap-2">
+                    {renderUpdateArea()}
                 </div>
             </div>
 

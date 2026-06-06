@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Referat",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "identifier": "no.agentik.referat",
   "build": {
     "frontendDist": "../out",
@@ -88,7 +88,7 @@
       "app",
       "dmg"
     ],
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -129,8 +129,10 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVDQTYzMUQ3ODc5N0M4MkEKUldRcXlKZUgxekdtN09DRkVWSHNpZlJseEVOUmpNd1dDSTNaLzZ3MXJGTnY3WW1pdnlOYjBpbkIK",
-      "endpoints": []
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI5MEZCMUFGOThDMEFDQjUKUldTMXJNQ1lyN0VQS1ZhYzE4emZrR1ZsMVI0cEdFbzZHa1ZUOGtueHVaM2VhQjMyeHpCYXQ2UEUK",
+      "endpoints": [
+        "https://github.com/ivaragentik/referat/releases/latest/download/latest.json"
+      ]
     }
   }
 }
