@@ -45,8 +45,15 @@ const env = { ...process.env };
 // Uses the current builder's $HOME (no hardcoded path) — safe in a public repo
 // and correct for any contributor.
 {
-  const remap = `--remap-path-prefix=${os.homedir()}=/build`;
-  env.RUSTFLAGS = env.RUSTFLAGS ? `${env.RUSTFLAGS} ${remap}` : remap;
+  const home = os.homedir();
+  const rustRemap = `--remap-path-prefix=${home}=/build`;
+  env.RUSTFLAGS = env.RUSTFLAGS ? `${env.RUSTFLAGS} ${rustRemap}` : rustRemap;
+  // C/C++/ObjC sources (whisper.cpp/ggml via whisper-rs-sys) embed __FILE__
+  // paths the Rust flag can't touch — remap those for the C toolchain too.
+  const cRemap = `-ffile-prefix-map=${home}=/build`;
+  for (const v of ['CFLAGS', 'CXXFLAGS', 'OBJCFLAGS', 'OBJCXXFLAGS']) {
+    env[v] = env[v] ? `${env[v]} ${cRemap}` : cRemap;
+  }
 }
 
 if (platform === 'linux' && feature === 'cuda') {
