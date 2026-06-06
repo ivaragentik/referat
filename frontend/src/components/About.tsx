@@ -19,6 +19,10 @@ export function About() {
             .catch(console.error);
     };
 
+    const handleAgentikClick = () => {
+        invoke('open_external_url', { url: 'https://agentik.no' }).catch(console.error);
+    };
+
     return (
         <div className="p-4 space-y-4 h-[80vh] overflow-y-auto">
             {/* Header */}
@@ -70,6 +74,23 @@ export function About() {
                         <p className="text-xs text-gray-600 leading-relaxed">Fri programvare under MIT-lisens. Se koden, bidra, eller tilpass etter egne behov.</p>
                     </div>
                 </div>
+            </div>
+
+            {/* Agentik CTA */}
+            <div className="rounded-lg p-4 text-center" style={{ backgroundColor: '#20252D' }}>
+                <p className="text-sm font-semibold text-white">Referat er laget av Agentik</p>
+                <p className="text-xs text-gray-300 mt-1 mb-3">
+                    Vi er et norsk AI-byrå. Lurer du på hvordan AI kan hjelpe bedriften din?
+                    Ta en uforpliktende prat med oss.
+                </p>
+                <Button
+                    onClick={handleAgentikClick}
+                    size="sm"
+                    className="bg-white text-gray-900 hover:bg-gray-100 text-xs font-medium"
+                >
+                    Snakk med Agentik
+                    <ExternalLink className="h-3 w-3 ml-2" />
+                </Button>
             </div>
 
             {/* Credits */}
