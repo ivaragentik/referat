@@ -40,6 +40,15 @@ console.log(''); // Empty line for spacing
 const platform = os.platform();
 const env = { ...process.env };
 
+// Privacy: strip the builder's absolute home path out of embedded panic/debug
+// strings so the shipped binary never leaks the build machine's username.
+// Uses the current builder's $HOME (no hardcoded path) — safe in a public repo
+// and correct for any contributor.
+{
+  const remap = `--remap-path-prefix=${os.homedir()}=/build`;
+  env.RUSTFLAGS = env.RUSTFLAGS ? `${env.RUSTFLAGS} ${remap}` : remap;
+}
+
 if (platform === 'linux' && feature === 'cuda') {
   console.log('🐧 Linux/CUDA detected: Setting CMAKE flags for NVIDIA GPU');
   env.CMAKE_CUDA_ARCHITECTURES = '75';
