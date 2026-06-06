@@ -95,7 +95,8 @@
       "icons/app_icon.ico"
     ],
     "resources": [
-      "templates/*.json"
+      "templates/*.json",
+      "resources/referat.mcpb"
     ],
     "externalBin": [
       "binaries/llama-helper",

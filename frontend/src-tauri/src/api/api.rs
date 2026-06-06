@@ -1164,6 +1164,51 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
     }
 }
 
+/// Open the bundled referat.mcpb file so Claude Desktop can register the MCP connector.
+/// On macOS `open referat.mcpb` triggers the registered handler for .mcpb, which is
+/// Claude Desktop.  The same semantics work for the other platforms via xdg-open / start.
+#[tauri::command]
+pub async fn install_claude_connector<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
+    use std::process::Command;
+    use tauri::Manager;
+
+    // Resolve the bundled resource path at runtime
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("Kunne ikke finne ressursmappe: {}", e))?;
+
+    let mcpb_path = resource_dir.join("resources").join("referat.mcpb");
+
+    log_info!("install_claude_connector: opening {:?}", mcpb_path);
+
+    if !mcpb_path.exists() {
+        return Err(format!(
+            "Filen referat.mcpb ble ikke funnet på {:?}",
+            mcpb_path
+        ));
+    }
+
+    let result = if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .args(&["/C", "start", "", &mcpb_path.to_string_lossy()])
+            .spawn()
+    } else if cfg!(target_os = "macos") {
+        Command::new("open")
+            .arg(&mcpb_path)
+            .spawn()
+    } else {
+        Command::new("xdg-open")
+            .arg(&mcpb_path)
+            .spawn()
+    };
+
+    result.map(|_| ()).map_err(|e| {
+        log_error!("install_claude_connector failed: {}", e);
+        format!("Kunne ikke åpne koblingen. Er Claude Desktop installert? ({})", e)
+    })
+}
+
 // ===== CUSTOM OPENAI API COMMANDS =====
 
 /// Saves the custom OpenAI configuration
