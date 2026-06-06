@@ -57,6 +57,20 @@ const env = { ...process.env };
   }
 }
 
+// Updater signing: Tauri's bundler reads the private KEY CONTENT from
+// TAURI_SIGNING_PRIVATE_KEY (not the _PATH form). If only a path is provided,
+// load the file into the content var so `pnpm tauri build` signs the update
+// artifacts automatically.
+if (!env.TAURI_SIGNING_PRIVATE_KEY && env.TAURI_SIGNING_PRIVATE_KEY_PATH) {
+  try {
+    env.TAURI_SIGNING_PRIVATE_KEY = fs.readFileSync(
+      env.TAURI_SIGNING_PRIVATE_KEY_PATH, 'utf8'
+    ).trim();
+  } catch (e) {
+    console.warn(`⚠ could not read TAURI_SIGNING_PRIVATE_KEY_PATH: ${e.message}`);
+  }
+}
+
 if (platform === 'linux' && feature === 'cuda') {
   console.log('🐧 Linux/CUDA detected: Setting CMAKE flags for NVIDIA GPU');
   env.CMAKE_CUDA_ARCHITECTURES = '75';
