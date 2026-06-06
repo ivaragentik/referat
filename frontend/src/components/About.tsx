@@ -23,7 +23,7 @@ export function About() {
 
     const handleGitHubClick = async () => {
         try {
-            await invoke('open_external_url', { url: 'https://github.com/agentik-no/referat' });
+            await invoke('open_external_url', { url: 'https://github.com/ivaragentik/referat' });
         } catch (error) {
             console.error('Failed to open link:', error);
         }
