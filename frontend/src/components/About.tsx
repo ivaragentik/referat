@@ -6,7 +6,7 @@ import AnalyticsConsentSwitch from "./AnalyticsConsentSwitch";
 import { UpdateDialog } from "./UpdateDialog";
 import { updateService, UpdateInfo } from '@/services/updateService';
 import { Button } from './ui/button';
-import { Loader2, CheckCircle2, Github } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 
@@ -20,14 +20,6 @@ export function About() {
         // Get current version on mount
         getVersion().then(setCurrentVersion).catch(console.error);
     }, []);
-
-    const handleGitHubClick = async () => {
-        try {
-            await invoke('open_external_url', { url: 'https://github.com/ivaragentik/referat' });
-        } catch (error) {
-            console.error('Failed to open link:', error);
-        }
-    };
 
     const handleCheckForUpdates = async () => {
         setIsChecking(true);
@@ -116,17 +108,14 @@ export function About() {
             </div>
 
             {/* Credits */}
-            <div className="pt-2 border-t border-gray-200 text-center space-y-2">
-                <p className="text-xs text-gray-400">
-                    Bygget på Meetily (MIT) · NB-Whisper fra Nasjonalbiblioteket · Laget av Agentik
+            <div className="pt-2 border-t border-gray-200 text-center space-y-1">
+                <p className="text-sm font-medium text-gray-600">
+                    Laget av Agentik · NB-Whisper fra Nasjonalbiblioteket
                 </p>
-                <button
-                    onClick={handleGitHubClick}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium rounded transition-colors duration-200 shadow-sm hover:shadow-md"
-                >
-                    <Github className="h-4 w-4" />
-                    Se koden på GitHub
-                </button>
+                <p className="text-xs text-gray-400">
+                    Alt skjer lokalt på din Mac. Kobler du til Claude eller bruker egen
+                    API-nøkkel, sendes møteinnhold til leverandøren når du bruker de funksjonene.
+                </p>
             </div>
 
             <AnalyticsConsentSwitch />

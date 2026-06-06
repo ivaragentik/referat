@@ -646,7 +646,7 @@ export function ModelSettingsModal({
                 <SelectValue placeholder="Velg leverandør" />
               </SelectTrigger>
               <SelectContent className="max-h-64 overflow-y-auto">
-                <SelectItem value="builtin-ai">Innebygd KI (gratis, helt lokalt)</SelectItem>
+                <SelectItem value="builtin-ai">Innebygd AI (gratis, helt lokalt)</SelectItem>
                 <SelectItem value="ollama">Ollama (avansert, lokalt)</SelectItem>
                 <SelectItem value="openai">OpenAI (egen API-nøkkel)</SelectItem>
                 <SelectItem value="claude">Claude (egen API-nøkkel)</SelectItem>
@@ -734,7 +734,8 @@ export function ModelSettingsModal({
               </button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Nøkkelen lagres kun lokalt på din Mac og brukes direkte mot leverandøren.
+              Nøkkelen lagres kun lokalt på din Mac. Merk: møteinnholdet sendes til
+              leverandøren når sammendrag lages — deres vilkår gjelder.
             </p>
           </div>
         )}

@@ -269,7 +269,7 @@ export function BuiltInModelManager({
     return (
       <Alert>
         <AlertDescription>
-          Ingen modeller funnet. Last ned en modell for å komme i gang med innebygd KI.
+          Ingen modeller funnet. Last ned en modell for å komme i gang med innebygd AI.
         </AlertDescription>
       </Alert>
     );
@@ -278,7 +278,7 @@ export function BuiltInModelManager({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-bold">Innebygde KI-modeller</h4>
+        <h4 className="text-sm font-bold">Innebygde AI-modeller</h4>
       </div>
 
       <div

@@ -37,8 +37,9 @@ export function ClaudeConnector() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Koble til Claude</h3>
           <p className="text-sm text-gray-600 mb-4">
             Spør møtene dine i Claude: &lsquo;Hva ble vi enige om i forrige møte?&rsquo; Referat-koblingen
-            gir Claude lesetilgang til møtene dine — alt forblir lokalt på din Mac. Krever
-            Claude Desktop-appen.
+            gir Claude lesetilgang til møtene dine. Krever Claude Desktop-appen.
+            Merk: når du spør Claude om møtene dine, sendes innholdet til Claude (Anthropic) —
+            deres vilkår gjelder for det du deler der.
           </p>
           <button
             onClick={handleInstall}

@@ -90,7 +90,7 @@ export function SummaryGeneratorButtonGroup({
 
       // Check if specific model is configured
       if (!selectedModel) {
-        toast.error('Ingen innebygd KI-modell valgt', {
+        toast.error('Ingen innebygd AI-modell valgt', {
           description: 'Velg en modell i innstillingene',
           duration: 5000,
         });
@@ -302,7 +302,7 @@ export function SummaryGeneratorButtonGroup({
             title="Sammendragsinnstillinger"
           >
             <Settings />
-            <span className="hidden lg:inline">KI-modell</span>
+            <span className="hidden lg:inline">AI-modell</span>
           </Button>
         </DialogTrigger>
         <DialogContent

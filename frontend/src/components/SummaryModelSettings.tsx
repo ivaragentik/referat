@@ -121,7 +121,7 @@ export function SummaryModelSettings({ refetchTrigger }: SummaryModelSettingsPro
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Konfigurer sammendragsmodell</h3>
         <p className="text-sm text-gray-600 mb-6">
-          Velg KI-modellen som brukes til å generere møtesammendrag.
+          Velg AI-modellen som brukes til å generere møtesammendrag.
         </p>
 
         <ModelSettingsModal
