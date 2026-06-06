@@ -937,6 +937,13 @@ impl WhisperEngine {
             }
         }
 
+        // Resolve the download URL before marking the model as actively downloading.
+        // If the model name is unsupported, the early-return `?` must not leave the
+        // name stuck in `active_downloads` (which would block every subsequent attempt
+        // until app restart).
+        let model_url = model_download_url(model_name)
+            .ok_or_else(|| anyhow!("Unsupported model: {}", model_name))?;
+
         // Add to active downloads
         {
             let mut active = self.active_downloads.write().await;
@@ -948,9 +955,6 @@ impl WhisperEngine {
             let mut cancel_flag = self.cancel_download_flag.write().await;
             *cancel_flag = None;
         }
-
-        let model_url = model_download_url(model_name)
-            .ok_or_else(|| anyhow!("Unsupported model: {}", model_name))?;
         
         log::info!("Model URL for {}: {}", model_name, model_url);
         
