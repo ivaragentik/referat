@@ -568,7 +568,7 @@ const Sidebar: React.FC = () => {
         <div
           className={`flex items-center transition-all duration-150 group ${item.type === 'folder' && depth === 0
             ? 'p-3 text-lg font-semibold h-10 mx-3 mt-3 rounded-lg'
-            : `px-3 py-2 my-0.5 rounded-md text-sm ${isActive ? 'bg-blue-100 text-blue-700 font-medium' :
+            : `px-3 py-2 my-0.5 rounded-md text-sm ${isActive ? 'bg-blue-50 text-blue-900 font-medium shadow-[inset_3px_0_0_0_#2563eb]' :
               hasTranscriptMatch ? 'bg-yellow-50' : 'hover:bg-gray-50'
             } cursor-pointer`
             }`}
@@ -617,13 +617,13 @@ const Sidebar: React.FC = () => {
                 )}
                 <span className="flex-1 break-words">{item.title}</span>
                 {isMeetingItem && (
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEditStart(item.id, item.title);
                       }}
-                      className="hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 flex-shrink-0"
+                      className="hover:text-blue-600 p-1 rounded-md hover:bg-blue-50 flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                       aria-label="Rediger møtetittel"
                     >
                       <Pencil className="w-4 h-4" />
@@ -633,7 +633,7 @@ const Sidebar: React.FC = () => {
                         e.stopPropagation();
                         setDeleteModalState({ isOpen: true, itemId: item.id });
                       }}
-                      className="hover:text-red-600 p-1 rounded-md hover:bg-red-50 flex-shrink-0"
+                      className="hover:text-red-600 p-1 rounded-md hover:bg-red-50 flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                       aria-label="Slett møte"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -654,6 +654,11 @@ const Sidebar: React.FC = () => {
         {item.type === 'folder' && isExpanded && item.children && (
           <div className="ml-1">
             {item.children.map(child => renderItem(child, depth + 1))}
+            {searchQuery.trim() && !isSearching && item.id === 'meetings' && item.children.length === 0 && (
+              <p className="px-4 py-3 text-xs text-gray-400">
+                Ingen møter samsvarer med «{searchQuery}»
+              </p>
+            )}
           </div>
         )}
       </div>
