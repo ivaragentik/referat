@@ -410,6 +410,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .manage(whisper_engine::parallel_commands::ParallelProcessorState::new())
         .manage(Arc::new(RwLock::new(
             None::<notifications::manager::NotificationManager<tauri::Wry>>,
@@ -418,6 +419,64 @@ pub fn run() {
         .manage(summary::summary_engine::ModelManagerState(Arc::new(tokio::sync::Mutex::new(None))))
         .setup(|_app| {
             log::info!("Application setup complete");
+
+            // Native macOS menu bar with Norwegian labels and standard shortcuts
+            #[cfg(target_os = "macos")]
+            {
+                use tauri::menu::{AboutMetadata, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
+
+                let handle = _app.handle();
+
+                let app_menu = SubmenuBuilder::new(handle, "Referat")
+                    .item(&PredefinedMenuItem::about(handle, Some("Om Referat"), Some(AboutMetadata::default()))?)
+                    .separator()
+                    .item(
+                        &MenuItemBuilder::with_id("menu_settings", "Innstillinger…")
+                            .accelerator("Cmd+,")
+                            .build(handle)?,
+                    )
+                    .separator()
+                    .item(&PredefinedMenuItem::services(handle, Some("Tjenester"))?)
+                    .separator()
+                    .item(&PredefinedMenuItem::hide(handle, Some("Skjul Referat"))?)
+                    .item(&PredefinedMenuItem::hide_others(handle, Some("Skjul andre"))?)
+                    .item(&PredefinedMenuItem::show_all(handle, Some("Vis alle"))?)
+                    .separator()
+                    .item(&PredefinedMenuItem::quit(handle, Some("Avslutt Referat"))?)
+                    .build()?;
+
+                let file_menu = SubmenuBuilder::new(handle, "Fil")
+                    .item(
+                        &MenuItemBuilder::with_id("menu_new_meeting", "Nytt møte")
+                            .accelerator("Cmd+N")
+                            .build(handle)?,
+                    )
+                    .separator()
+                    .item(&PredefinedMenuItem::close_window(handle, Some("Lukk vindu"))?)
+                    .build()?;
+
+                let edit_menu = SubmenuBuilder::new(handle, "Rediger")
+                    .item(&PredefinedMenuItem::undo(handle, Some("Angre"))?)
+                    .item(&PredefinedMenuItem::redo(handle, Some("Gjør om"))?)
+                    .separator()
+                    .item(&PredefinedMenuItem::cut(handle, Some("Klipp ut"))?)
+                    .item(&PredefinedMenuItem::copy(handle, Some("Kopier"))?)
+                    .item(&PredefinedMenuItem::paste(handle, Some("Lim inn"))?)
+                    .separator()
+                    .item(&PredefinedMenuItem::select_all(handle, Some("Marker alt"))?)
+                    .build()?;
+
+                let window_menu = SubmenuBuilder::new(handle, "Vindu")
+                    .item(&PredefinedMenuItem::minimize(handle, Some("Minimer"))?)
+                    .item(&PredefinedMenuItem::fullscreen(handle, Some("Fullskjerm"))?)
+                    .build()?;
+
+                let menu = MenuBuilder::new(handle)
+                    .items(&[&app_menu, &file_menu, &edit_menu, &window_menu])
+                    .build()?;
+
+                _app.set_menu(menu)?;
+            }
 
             // Initialize system tray
             if let Err(e) = tray::create_tray(_app.handle()) {
@@ -509,6 +568,23 @@ pub fn run() {
             }
 
             Ok(())
+        })
+        .on_menu_event(|app, event| {
+            match event.id().as_ref() {
+                "menu_new_meeting" => {
+                    tray::focus_main_window(app);
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.eval("window.location.assign('/')");
+                    }
+                }
+                "menu_settings" => {
+                    tray::focus_main_window(app);
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.eval("window.location.assign('/settings')");
+                    }
+                }
+                _ => {}
+            }
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -735,6 +811,19 @@ pub fn run() {
                 #[cfg(target_os = "macos")]
                 tauri::RunEvent::Reopen { .. } => {
                     tray::focus_main_window(_app_handle);
+                }
+                tauri::RunEvent::ExitRequested { ref api, .. } => {
+                    // Block Cmd+Q / quit while a recording is active to prevent
+                    // losing the meeting. The user is asked to stop the recording first.
+                    let recording = RECORDING_FLAG.load(Ordering::SeqCst)
+                        || tauri::async_runtime::block_on(audio::recording_commands::is_recording());
+                    if recording {
+                        use tauri::Emitter;
+                        log::warn!("Exit requested during active recording — blocked to prevent data loss");
+                        api.prevent_exit();
+                        tray::focus_main_window(_app_handle);
+                        let _ = _app_handle.emit("quit-blocked-recording", ());
+                    }
                 }
                 tauri::RunEvent::Exit => {
                     log::info!("Application exiting, cleaning up resources...");

@@ -209,8 +209,33 @@ pub fn update_tray_menu<R: Runtime>(app: &AppHandle<R>) {
     });
 }
 
+/// macOS dock badge mirroring the recording state ("REC" while recording,
+/// "❚❚" while paused) so the user sees recording status at a glance.
+fn update_dock_badge<R: Runtime>(app: &AppHandle<R>, state: &RecordingState) {
+    #[cfg(target_os = "macos")]
+    {
+        if let Some(window) = app.get_webview_window("main") {
+            let badge = match state {
+                RecordingState::Recording
+                | RecordingState::Starting
+                | RecordingState::Resuming => Some("REC".to_string()),
+                RecordingState::Paused | RecordingState::Pausing => Some("❚❚".to_string()),
+                RecordingState::Stopped | RecordingState::Stopping => None,
+            };
+            if let Err(e) = window.set_badge_label(badge) {
+                log::warn!("Tray: Failed to set dock badge: {}", e);
+            }
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (app, state);
+    }
+}
+
 pub fn set_tray_state<R: Runtime>(app: &AppHandle<R>, state: RecordingState) {
     log::info!("Tray: Setting intermediate state: {:?}", state);
+    update_dock_badge(app, &state);
     // During recording state transitions, we assume recording is allowed (we're already recording)
     if let Ok(menu) = build_menu(app, state, true) {
         if let Some(tray) = app.tray_by_id("main-tray") {
@@ -307,6 +332,7 @@ pub async fn update_tray_menu_async<R: Runtime>(app: &AppHandle<R>) {
     // Get the current recording state
     let recording_state = get_current_recording_state().await;
     log::info!("Tray: Current recording state: {:?}", recording_state);
+    update_dock_badge(app, &recording_state);
 
     // Determine if recording should be allowed
     // Only block recording during incomplete onboarding when no transcription model is ready

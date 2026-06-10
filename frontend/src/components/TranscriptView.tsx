@@ -107,23 +107,13 @@ function cleanStopWords(text: string): string {
 export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts, isRecording = false, isPaused = false, isProcessing = false, isStopping = false, enableStreaming = false }) => {
   const [speechDetected, setSpeechDetected] = useState(false);
 
-  // Debug: Log the props to understand what's happening
-  console.log('TranscriptView render:', {
-    isRecording,
-    isPaused,
-    isProcessing,
-    isStopping,
-    transcriptCount: transcripts.length,
-    shouldShowListening: !isStopping && isRecording && !isPaused && !isProcessing && transcripts.length > 0
-  });
-
   // Streaming effect state
   const [streamingTranscript, setStreamingTranscript] = useState<{
     id: string;
     visibleText: string;
     fullText: string;
   } | null>(null);
-  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const streamingRafRef = useRef<number | null>(null);
   const lastStreamedIdRef = useRef<string | null>(null); // Track which transcript we've streamed
 
   // Load preference for showing confidence indicator
@@ -173,12 +163,16 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts, isR
 
   // Streaming effect: animate new transcripts character-by-character
   useEffect(() => {
+    const cancelStreaming = () => {
+      if (streamingRafRef.current !== null) {
+        cancelAnimationFrame(streamingRafRef.current);
+        streamingRafRef.current = null;
+      }
+    };
+
     if (!enableStreaming || !isRecording) {
       // Clean up if streaming is disabled
-      if (streamingIntervalRef.current) {
-        clearInterval(streamingIntervalRef.current);
-        streamingIntervalRef.current = null;
-      }
+      cancelStreaming();
       setStreamingTranscript(null);
       lastStreamedIdRef.current = null;
       return;
@@ -192,24 +186,19 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts, isR
 
     // Check if this is a new transcript we haven't streamed yet (using ref to avoid dependency issues)
     if (lastStreamedIdRef.current !== latestTranscript.id) {
-      // Clear any existing streaming interval
-      if (streamingIntervalRef.current) {
-        clearInterval(streamingIntervalRef.current);
-        streamingIntervalRef.current = null;
-      }
+      cancelStreaming();
 
       // Mark this transcript as being streamed
       lastStreamedIdRef.current = latestTranscript.id;
 
       const fullText = latestTranscript.text;
 
-      // Fast typewriter effect - complete in 0.8 seconds for snappy feel
-      const TOTAL_DURATION_MS = 800; // 0.8 seconds total - fast and snappy!
-      const INTERVAL_MS = 15; // Update every 15ms for smooth animation
-      const totalTicks = TOTAL_DURATION_MS / INTERVAL_MS; // ~53 ticks
-      const charsPerTick = Math.max(2, Math.ceil(fullText.length / totalTicks)); // At least 2 chars per tick for speed
+      // Fast typewriter effect - complete in 0.8 seconds for snappy feel.
+      // Driven by elapsed time on requestAnimationFrame so it updates at most
+      // once per display frame instead of on a fixed 15ms timer.
+      const TOTAL_DURATION_MS = 800;
       const INITIAL_CHARS = Math.min(5, fullText.length); // Start with first 5 chars visible
-      let charIndex = INITIAL_CHARS;
+      const startTime = performance.now();
 
       setStreamingTranscript({
         id: latestTranscript.id,
@@ -217,13 +206,13 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts, isR
         fullText: fullText
       });
 
-      streamingIntervalRef.current = setInterval(() => {
-        charIndex += charsPerTick;
+      const tick = (now: number) => {
+        const progress = Math.min(1, (now - startTime) / TOTAL_DURATION_MS);
+        const charIndex = Math.max(INITIAL_CHARS, Math.ceil(progress * fullText.length));
 
-        if (charIndex >= fullText.length) {
+        if (progress >= 1 || charIndex >= fullText.length) {
           // Streaming complete
-          clearInterval(streamingIntervalRef.current!);
-          streamingIntervalRef.current = null;
+          streamingRafRef.current = null;
           setStreamingTranscript(null);
         } else {
           setStreamingTranscript(prev => {
@@ -233,17 +222,20 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts, isR
               visibleText: fullText.substring(0, charIndex)
             };
           });
+          streamingRafRef.current = requestAnimationFrame(tick);
         }
-      }, INTERVAL_MS);
+      };
+
+      streamingRafRef.current = requestAnimationFrame(tick);
     }
   }, [transcripts, enableStreaming, isRecording]);
 
-  // Cleanup streaming interval on unmount
+  // Cleanup streaming animation on unmount
   useEffect(() => {
     return () => {
-      if (streamingIntervalRef.current) {
-        clearInterval(streamingIntervalRef.current);
-        streamingIntervalRef.current = null;
+      if (streamingRafRef.current !== null) {
+        cancelAnimationFrame(streamingRafRef.current);
+        streamingRafRef.current = null;
       }
       lastStreamedIdRef.current = null;
     };

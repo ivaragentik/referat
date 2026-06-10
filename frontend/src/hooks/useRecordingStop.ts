@@ -149,7 +149,7 @@ export function useRecordingStop(
       setStatus(RecordingStatus.PROCESSING_TRANSCRIPTS, 'Waiting for transcription...');
       console.log('Waiting for transcription to complete...');
 
-      const MAX_WAIT_TIME = 60000; // 60 seconds maximum wait (increased for longer processing)
+      const MAX_WAIT_TIME = 180000; // 3 minutes maximum wait — long meetings on slow machines need the headroom
       const POLL_INTERVAL = 500; // Check every 500ms
       let elapsedTime = 0;
       let transcriptionComplete = false;
@@ -183,7 +183,7 @@ export function useRecordingStop(
           // Update user with current status
           if (status.chunks_in_queue > 0) {
             console.log(`Processing ${status.chunks_in_queue} remaining audio chunks...`);
-            setStatus(RecordingStatus.PROCESSING_TRANSCRIPTS, `Processing ${status.chunks_in_queue} remaining chunks...`);
+            setStatus(RecordingStatus.PROCESSING_TRANSCRIPTS, `Behandler ${status.chunks_in_queue} gjenværende lydbiter…`);
           }
 
           // Wait before next check
@@ -201,6 +201,13 @@ export function useRecordingStop(
 
       if (!transcriptionComplete && elapsedTime >= MAX_WAIT_TIME) {
         console.warn('⏰ Transcription wait timeout reached after', elapsedTime, 'ms');
+        // The meeting is saved with whatever transcripts exist — tell the user
+        // instead of silently truncating. The audio file is preserved, so the
+        // meeting can be re-transcribed later.
+        toast.warning('Transkripsjonen ble ikke helt ferdig', {
+          description: 'Møtet lagres med det som rakk å bli transkribert. Lydopptaket er bevart, så du kan transkribere på nytt fra møtesiden.',
+          duration: 12000,
+        });
       } else {
         console.log('✅ Transcription completed after', elapsedTime, 'ms');
         // Wait longer for any late transcript segments (increased from 1s to 4s)
@@ -215,7 +222,7 @@ export function useRecordingStop(
         time_since_stop: flushStartTime - stopStartTime,
         current_transcript_count: transcriptsRef.current.length
       });
-      setStatus(RecordingStatus.PROCESSING_TRANSCRIPTS, 'Flushing transcript buffer...');
+      setStatus(RecordingStatus.PROCESSING_TRANSCRIPTS, 'Ferdigstiller transkripsjonen…');
       flushBuffer();
       const flushEndTime = Date.now();
       console.log('✅ Final buffer flush completed', {
