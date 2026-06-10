@@ -98,14 +98,33 @@ export default function RootLayout({
       })
   }, [])
 
-  // Disable context menu in production
+  // Disable context menu in production, except in editable fields where the
+  // native menu (klipp ut / kopier / lim inn) is expected desktop behavior.
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') {
-      const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+      const handleContextMenu = (e: MouseEvent) => {
+        const target = e.target as HTMLElement | null;
+        const isEditable = !!target?.closest('input, textarea, [contenteditable="true"], [contenteditable=""]');
+        const hasSelection = !!window.getSelection()?.toString();
+        if (isEditable || hasSelection) return;
+        e.preventDefault();
+      };
       document.addEventListener('contextmenu', handleContextMenu);
       return () => document.removeEventListener('contextmenu', handleContextMenu);
     }
   }, []);
+  // Quit was blocked because a recording is active — tell the user why.
+  useEffect(() => {
+    const unlisten = listen('quit-blocked-recording', () => {
+      toast.warning('Opptak pågår', {
+        description: 'Stopp opptaket før du avslutter Referat, slik at møtet ikke går tapt.',
+      });
+    });
+    return () => {
+      unlisten.then(fn => fn());
+    };
+  }, []);
+
   useEffect(() => {
     // Listen for tray recording toggle request
     const unlisten = listen('request-recording-toggle', () => {
@@ -231,7 +250,7 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="no">
       <body className={`${sourceSans3.variable} font-sans antialiased`}>
         <AnalyticsProvider>
           <RecordingStateProvider>
