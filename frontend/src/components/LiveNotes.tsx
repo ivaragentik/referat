@@ -20,8 +20,11 @@ interface LiveNotesProps {
   meetingId: string;
 }
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export function LiveNotes({ meetingId }: LiveNotesProps) {
   const [notes, setNotes] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 
   // Track the previous meeting id so we can detect transitions.
   const prevMeetingIdRef = useRef<string>(meetingId);
@@ -118,12 +121,15 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
         return;
       }
 
-      // Real id — prefer DB, fall back to localStorage.
+      // Real id — prefer DB unless the localStorage mirror has more content
+      // (the mirror is written on every keystroke, so it can be ahead of the
+      // debounced DB save if the user navigated away mid-typing).
+      const ls = localStorage.getItem(storageKey(meetingId)) ?? '';
       try {
         const dbNotes = await invoke<string | null>('get_meeting_notes', {
           meetingId,
         });
-        if (dbNotes && dbNotes.trim().length > 0) {
+        if (dbNotes && dbNotes.trim().length >= ls.trim().length) {
           setNotes(dbNotes);
           // Mirror to localStorage for crash safety.
           localStorage.setItem(storageKey(meetingId), dbNotes);
@@ -134,7 +140,6 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
       }
       // Fall back to localStorage (real-id key only — never leak the live buffer
       // into a different real meeting).
-      const ls = localStorage.getItem(storageKey(meetingId)) ?? '';
       setNotes(ls);
     };
 
@@ -151,31 +156,35 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
     };
   }, []);
 
-  // Autosave (debounced)
+  // Persist to the Tauri backend, surfacing failures to the user.
+  const saveToBackend = useCallback(async (currentNotes: string, currentMeetingId: string) => {
+    if (currentMeetingId === PLACEHOLDER_ID) return;
+    setSaveStatus('saving');
+    try {
+      await invoke('save_meeting_notes', {
+        meetingId: currentMeetingId,
+        notesMarkdown: currentNotes,
+      });
+      setSaveStatus('saved');
+    } catch (err) {
+      console.warn('[LiveNotes] autosave failed:', err);
+      setSaveStatus('error');
+    }
+  }, []);
+
+  // Autosave (debounced). localStorage is written immediately in handleChange,
+  // so the debounce only delays the backend write.
   const scheduleAutosave = useCallback(
     (currentNotes: string, currentMeetingId: string) => {
       if (autosaveTimerRef.current) {
         clearTimeout(autosaveTimerRef.current);
       }
 
-      autosaveTimerRef.current = setTimeout(async () => {
-        // Always persist to localStorage for crash safety.
-        localStorage.setItem(storageKey(currentMeetingId), currentNotes);
-
-        // Only call the Tauri command when we have a real meeting id.
-        if (currentMeetingId !== PLACEHOLDER_ID) {
-          try {
-            await invoke('save_meeting_notes', {
-              meetingId: currentMeetingId,
-              notesMarkdown: currentNotes,
-            });
-          } catch (err) {
-            console.warn('[LiveNotes] autosave failed:', err);
-          }
-        }
-      }, 1000);
+      autosaveTimerRef.current = setTimeout(() => {
+        saveToBackend(currentNotes, currentMeetingId);
+      }, 400);
     },
-    []
+    [saveToBackend]
   );
 
   // Change handler
@@ -183,10 +192,16 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = e.target.value;
       setNotes(value);
+      // Crash safety: mirror every keystroke to localStorage right away.
+      localStorage.setItem(storageKey(meetingId), value);
       scheduleAutosave(value, meetingId);
     },
     [meetingId, scheduleAutosave]
   );
+
+  const handleRetrySave = useCallback(() => {
+    saveToBackend(notes, meetingId);
+  }, [notes, meetingId, saveToBackend]);
 
   // Render
   return (
@@ -201,7 +216,20 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
             spellCheck={false}
           />
           <p className="text-xs text-gray-400 text-center pt-3 pb-1">
-            Notatene dine veves inn i sammendraget når møtet er ferdig.
+            {saveStatus === 'error' ? (
+              <span className="text-red-500">
+                Kunne ikke lagre notatene.{' '}
+                <button
+                  type="button"
+                  onClick={handleRetrySave}
+                  className="underline underline-offset-2 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 rounded-sm"
+                >
+                  Prøv igjen
+                </button>
+              </span>
+            ) : (
+              'Notatene dine veves inn i sammendraget når møtet er ferdig.'
+            )}
           </p>
         </div>
       </div>

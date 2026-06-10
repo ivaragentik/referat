@@ -13,7 +13,6 @@ import Analytics from '@/lib/analytics';
 import { SettingsModals } from './_components/SettingsModal';
 import { TranscriptPanel } from './_components/TranscriptPanel';
 import { useModalState } from '@/hooks/useModalState';
-import { useRecordingStateSync } from '@/hooks/useRecordingStateSync';
 import { useRecordingStart } from '@/hooks/useRecordingStart';
 import { useRecordingStop } from '@/hooks/useRecordingStop';
 import { useTranscriptRecovery } from '@/hooks/useTranscriptRecovery';
@@ -28,6 +27,7 @@ type LiveTab = 'transkripsjon' | 'notater';
 export default function Home() {
   // Local page state (not moved to contexts)
   const [isRecording, setIsRecordingState] = useState(false);
+  const [isRecordingDisabled, setIsRecordingDisabled] = useState(false);
   const [barHeights, setBarHeights] = useState(['58%', '76%', '58%']);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [liveTab, setLiveTab] = useState<LiveTab>('transkripsjon');
@@ -44,8 +44,18 @@ export default function Home() {
   const { hasMicrophone } = usePermissionCheck();
   const { setIsMeetingActive, isCollapsed: sidebarCollapsed, refetchMeetings, currentMeeting } = useSidebar();
   const { modals, messages, showModal, hideModal } = useModalState(transcriptModelConfig);
-  const { isRecordingDisabled, setIsRecordingDisabled } = useRecordingStateSync(isRecording, setIsRecordingState, setIsMeetingActive);
   const { handleRecordingStart } = useRecordingStart(isRecording, setIsRecordingState, showModal);
+
+  // Keep page-local recording state in sync with the backend-synced context
+  // (replaces the old useRecordingStateSync hook that ran its own 1s polling loop)
+  useEffect(() => {
+    if (recordingState.isRecording && !isRecording) {
+      setIsRecordingState(true);
+      setIsMeetingActive(true);
+    } else if (!recordingState.isRecording && isRecording) {
+      setIsRecordingState(false);
+    }
+  }, [recordingState.isRecording, isRecording, setIsMeetingActive]);
 
   // Get handleRecordingStop function and setIsStopping (state comes from global context)
   const { handleRecordingStop, setIsStopping } = useRecordingStop(
