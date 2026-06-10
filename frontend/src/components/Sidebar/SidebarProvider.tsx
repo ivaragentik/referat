@@ -11,6 +11,7 @@ interface SidebarItem {
   id: string;
   title: string;
   type: 'folder' | 'file' | 'header';
+  created_at?: string;
   children?: SidebarItem[];
 }
 
@@ -56,7 +57,7 @@ function groupMeetingsByDate(meetings: CurrentMeeting[]): SidebarItem[] {
   groups.forEach(g => {
     if (g.items.length === 0) return;
     children.push({ id: g.id, title: g.label, type: 'header' });
-    g.items.forEach(m => children.push({ id: m.id, title: m.title, type: 'file' }));
+    g.items.forEach(m => children.push({ id: m.id, title: m.title, type: 'file', created_at: m.created_at }));
   });
   return children;
 }

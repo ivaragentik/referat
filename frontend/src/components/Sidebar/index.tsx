@@ -36,7 +36,20 @@ interface SidebarItem {
   id: string;
   title: string;
   type: 'folder' | 'file' | 'header';
+  created_at?: string;
   children?: SidebarItem[];
+}
+
+// Compact secondary line for a meeting row: time today, short date otherwise.
+function formatMeetingTime(iso?: string): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) {
+    return d.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+  }
+  return d.toLocaleDateString('nb-NO', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 const Sidebar: React.FC = () => {
@@ -104,6 +117,15 @@ const Sidebar: React.FC = () => {
 
 
   const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; itemId: string | null }>({ isOpen: false, itemId: null });
+  const [appVersion, setAppVersion] = useState<string>('');
+
+  // Real app version for the footer (was a hardcoded, stale string)
+  useEffect(() => {
+    import('@tauri-apps/api/app')
+      .then(({ getVersion }) => getVersion())
+      .then(setAppVersion)
+      .catch(() => { /* non-Tauri context (tests) — leave empty */ });
+  }, []);
 
   useEffect(() => {
     // Note: Don't set hardcoded defaults - let DB be the source of truth
@@ -585,8 +607,8 @@ const Sidebar: React.FC = () => {
         <div
           className={`flex items-center transition-all duration-150 group ${item.type === 'folder' && depth === 0
             ? 'p-3 text-lg font-semibold h-10 mx-3 mt-3 rounded-lg'
-            : `px-3 py-2 my-0.5 rounded-md text-sm ${isActive ? 'bg-blue-50 text-blue-900 font-medium shadow-[inset_3px_0_0_0_#2563eb]' :
-              hasTranscriptMatch ? 'bg-yellow-50' : 'hover:bg-gray-50'
+            : `px-2.5 py-1.5 my-0.5 rounded-lg text-sm ${isActive ? 'bg-white shadow-sm ring-1 ring-gray-200 text-gray-900' :
+              hasTranscriptMatch ? 'bg-yellow-50' : 'text-gray-600 hover:bg-gray-200/60'
             } cursor-pointer`
             }`}
           style={item.type === 'folder' && depth === 0 ? {} : { paddingLeft }}
@@ -621,18 +643,19 @@ const Sidebar: React.FC = () => {
               )}
             </>
           ) : (
-            <div className="flex flex-col w-full">
-              <div className="flex items-center w-full">
-                {isMeetingItem ? (
-                  <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full mr-2 bg-gray-100">
-                    <File className="w-3.5 h-3.5 text-gray-600" />
-                  </div>
-                ) : (
-                  <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full mr-2 bg-blue-100">
-                    <Plus className="w-3.5 h-3.5 text-blue-600" />
+            <div className="flex flex-col w-full min-w-0">
+              <div className="flex items-center w-full min-w-0">
+                {!isMeetingItem && (
+                  <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full mr-2 bg-blue-100">
+                    <Plus className="w-3 h-3 text-blue-600" />
                   </div>
                 )}
-                <span className="flex-1 break-words">{item.title}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="block truncate text-[13px] leading-5">{item.title}</span>
+                  {isMeetingItem && formatMeetingTime(item.created_at) && (
+                    <span className="block text-[11px] leading-4 text-gray-400">{formatMeetingTime(item.created_at)}</span>
+                  )}
+                </div>
                 {isMeetingItem && (
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
                     <button
@@ -698,7 +721,7 @@ const Sidebar: React.FC = () => {
       </button>
 
       <div
-        className={`h-screen bg-white border-r shadow-sm flex flex-col transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
+        className={`h-screen bg-gray-50 border-r border-gray-200 flex flex-col transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
           }`}
       >
         {/*  Header with traffic light spacing */}
@@ -734,6 +757,9 @@ const Sidebar: React.FC = () => {
                       </InputGroupAddon>
                     }
                   </InputGroup>
+                  {searchQuery && isSearching && (
+                    <p className="text-xs text-blue-500 animate-pulse mt-1 px-1">Søker…</p>
+                  )}
                 </div>
               </div>
             )}
@@ -747,7 +773,7 @@ const Sidebar: React.FC = () => {
             {!isCollapsed && (
               <div
                 onClick={() => router.push('/')}
-                className="p-3  text-lg font-semibold items-center hover:bg-gray-100 h-10   flex mx-3 mt-3 rounded-lg cursor-pointer"
+                className={`mx-3 mt-2 px-2.5 py-2 text-sm font-medium flex items-center rounded-lg cursor-pointer transition-colors duration-150 ${pathname === '/' ? 'bg-white shadow-sm ring-1 ring-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-200/60'}`}
               >
                 <Home className="w-4 h-4 mr-2" />
                 <span>Hjem</span>
@@ -758,25 +784,6 @@ const Sidebar: React.FC = () => {
           {/* Content area */}
           <div className="flex-1 flex flex-col min-h-0">
             {renderCollapsedIcons()}
-            {/* Meeting Notes folder header - fixed */}
-            {!isCollapsed && (
-              <div className="flex-shrink-0">
-                {filteredSidebarItems.filter(item => item.type === 'folder').map(item => (
-                  <div key={item.id}>
-                    <div
-                      className="flex items-center transition-all duration-150 p-3 text-lg font-semibold h-10 mx-3 mt-3 rounded-lg"
-                    >
-                      <NotebookPen className="w-4 h-4 mr-2 text-gray-600" />
-                      <span className="text-gray-700">{item.title}</span>
-                      {searchQuery && item.id === 'meetings' && isSearching && (
-                        <span className="ml-2 text-xs text-blue-500 animate-pulse">Søker…</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* Scrollable meeting items */}
             {!isCollapsed && (
               <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
@@ -787,6 +794,14 @@ const Sidebar: React.FC = () => {
                       {item.children!.map(child => renderItem(child, 1))}
                     </div>
                   ))}
+                {meetings.length === 0 && !searchQuery.trim() && (
+                  <div className="mx-3 mt-6 px-3 text-center">
+                    <p className="text-sm text-gray-500">Ingen møter ennå</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Trykk «Start opptak» nedenfor — referatet skriver seg selv.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -795,11 +810,11 @@ const Sidebar: React.FC = () => {
         {/* Footer */}
         {!isCollapsed && (
 
-          <div className="flex-shrink-0 p-2 border-t border-gray-100">
+          <div className="flex-shrink-0 p-3 border-t border-gray-200 space-y-1">
             <button
               onClick={handleRecordingToggle}
               disabled={isRecording}
-              className={`w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-white ${isRecording ? 'bg-red-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'} rounded-lg transition-colors shadow-sm`}
+              className={`w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-white ${isRecording ? 'bg-red-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600 active:bg-red-700'} rounded-full transition-colors shadow-sm`}
             >
               {isRecording ? (
                 <>
@@ -817,24 +832,26 @@ const Sidebar: React.FC = () => {
             {betaFeatures.importAndRetranscribe && (
               <button
                 onClick={() => openImportDialog()}
-                className="w-full flex items-center justify-center px-3 py-2 mt-1 text-sm font-medium text-gray-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors shadow-sm"
+                className="w-full flex items-center px-2.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200/60 rounded-lg transition-colors"
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-4 h-4 mr-2 text-gray-500" />
                 <span>Importer lyd</span>
               </button>
             )}
 
             <button
               onClick={() => router.push('/settings')}
-              className="w-full flex items-center justify-center px-3 py-1.5 mt-1 mb-1 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors shadow-sm"
+              className={`w-full flex items-center px-2.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname === '/settings' ? 'bg-white shadow-sm ring-1 ring-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-200/60'}`}
             >
-              <Settings className="w-4 h-4 mr-2" />
+              <Settings className="w-4 h-4 mr-2 text-gray-500" />
               <span>Innstillinger</span>
             </button>
             <Info isCollapsed={isCollapsed} />
-            <div className="w-full flex items-center justify-center px-3 py-1 text-xs text-gray-400">
-              v0.4.0
-            </div>
+            {appVersion && (
+              <div className="w-full flex items-center justify-center px-3 pt-1 text-[11px] text-gray-400">
+                Referat v{appVersion}
+              </div>
+            )}
           </div>
         )}
       </div>

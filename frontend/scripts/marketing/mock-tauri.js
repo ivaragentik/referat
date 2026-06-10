@@ -14,7 +14,7 @@
     {
       id: 'demo-nordvik',
       title: 'Kundemøte – Nordvik Eiendom',
-      created_at: '2026-06-06T10:00:00Z',
+      created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
       updated_at: '2026-06-06T10:00:00Z',
       segments: [
         'Ivar: God morgen, Marius — takk for at du tok deg tid i dag.',
@@ -55,7 +55,7 @@ Oppfølgingsmøte tirsdag kl. 10:00 for å gjennomgå forslaget og avtale oppsta
     {
       id: 'demo-1on1-sofie',
       title: 'Ukentlig 1:1 – Sofie',
-      created_at: '2026-06-05T13:00:00Z',
+      created_at: new Date(Date.now() - 26 * 3600000).toISOString(),
       updated_at: '2026-06-05T13:00:00Z',
       segments: [
         'Ivar: Hei Sofie, hvordan har uka vært?',
@@ -97,7 +97,7 @@ Sofie prioriterer dashboard og månedsrapport så snart tilgangene er på plass.
     {
       id: 'demo-styremote',
       title: 'Styremøte Q2 2026',
-      created_at: '2026-06-04T11:00:00Z',
+      created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
       updated_at: '2026-06-04T11:00:00Z',
       segments: [
         'Ivar: Velkommen til styremøtet. Vi har tre saker: økonomi, ansettelser og veien videre.',
