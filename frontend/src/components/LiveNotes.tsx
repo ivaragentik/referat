@@ -18,13 +18,24 @@ function storageKey(meetingId: string): string {
 interface LiveNotesProps {
   /** The current meeting id from SidebarProvider (may be the placeholder). */
   meetingId: string;
+  /** When this turns true (recording started), focus the notes field. */
+  focusSignal?: boolean;
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-export function LiveNotes({ meetingId }: LiveNotesProps) {
+export function LiveNotes({ meetingId, focusSignal = false }: LiveNotesProps) {
   const [notes, setNotes] = useState<string>('');
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Focus the notepad when recording starts so the user can type straight away.
+  // Slight delay lets the parent finish unhiding the panel first.
+  useEffect(() => {
+    if (!focusSignal) return;
+    const t = setTimeout(() => textareaRef.current?.focus(), 150);
+    return () => clearTimeout(t);
+  }, [focusSignal]);
 
   // Track the previous meeting id so we can detect transitions.
   const prevMeetingIdRef = useRef<string>(meetingId);
@@ -209,6 +220,7 @@ export function LiveNotes({ meetingId }: LiveNotesProps) {
       <div className="flex justify-center px-6 pt-6 flex-1">
         <div className="w-full max-w-[760px] flex flex-col flex-1">
           <textarea
+            ref={textareaRef}
             value={notes}
             onChange={handleChange}
             placeholder="Skriv stikkord mens møtet pågår…"

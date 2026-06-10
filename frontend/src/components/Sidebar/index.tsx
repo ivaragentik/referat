@@ -35,7 +35,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '
 interface SidebarItem {
   id: string;
   title: string;
-  type: 'folder' | 'file';
+  type: 'folder' | 'file' | 'header';
   children?: SidebarItem[];
 }
 
@@ -272,6 +272,9 @@ const Sidebar: React.FC = () => {
 
             // Filter children based on search results or title match
             const filteredChildren = folder.children.filter(item => {
+              // Date headers are labels, not results
+              if (item.type === 'header') return false;
+
               // Include if the meeting ID is in our search results
               if (matchedMeetingIds.has(item.id)) return true;
 
@@ -301,6 +304,7 @@ const Sidebar: React.FC = () => {
 
             // Filter children based on search query
             const filteredChildren = folder.children.filter(item =>
+              item.type !== 'header' &&
               item.title.toLowerCase().includes(searchQuery.toLowerCase())
             );
 
@@ -562,6 +566,19 @@ const Sidebar: React.FC = () => {
     const hasTranscriptMatch = !!matchingResult;
 
     if (isCollapsed) return null;
+
+    // Date-group headers («I dag», «I går», …) — non-interactive labels
+    if (item.type === 'header') {
+      return (
+        <div
+          key={item.id}
+          className="pt-3 pb-1 pr-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 select-none"
+          style={{ paddingLeft }}
+        >
+          {item.title}
+        </div>
+      );
+    }
 
     return (
       <div key={item.id}>

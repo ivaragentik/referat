@@ -10,13 +10,55 @@ import { useRecordingState } from '@/contexts/RecordingStateContext';
 interface SidebarItem {
   id: string;
   title: string;
-  type: 'folder' | 'file';
+  type: 'folder' | 'file' | 'header';
   children?: SidebarItem[];
 }
 
 export interface CurrentMeeting {
   id: string;
   title: string;
+  created_at?: string;
+}
+
+// Group meetings into date buckets with non-interactive header rows,
+// newest group first (the list arrives sorted newest-first from the backend).
+function groupMeetingsByDate(meetings: CurrentMeeting[]): SidebarItem[] {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfWeek.getDate() - 6);
+
+  const groups: { id: string; label: string; items: CurrentMeeting[] }[] = [
+    { id: 'hdr-today', label: 'I dag', items: [] },
+    { id: 'hdr-yesterday', label: 'I går', items: [] },
+    { id: 'hdr-week', label: 'Tidligere denne uka', items: [] },
+    { id: 'hdr-older', label: 'Eldre', items: [] },
+  ];
+
+  meetings.forEach(m => {
+    const d = m.created_at ? new Date(m.created_at) : null;
+    if (!d || isNaN(d.getTime())) {
+      groups[3].items.push(m);
+    } else if (d >= startOfToday) {
+      groups[0].items.push(m);
+    } else if (d >= startOfYesterday) {
+      groups[1].items.push(m);
+    } else if (d >= startOfWeek) {
+      groups[2].items.push(m);
+    } else {
+      groups[3].items.push(m);
+    }
+  });
+
+  const children: SidebarItem[] = [];
+  groups.forEach(g => {
+    if (g.items.length === 0) return;
+    children.push({ id: g.id, title: g.label, type: 'header' });
+    g.items.forEach(m => children.push({ id: m.id, title: m.title, type: 'file' }));
+  });
+  return children;
 }
 
 // Search result type for transcript search
@@ -87,10 +129,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const fetchMeetings = React.useCallback(async () => {
     if (serverAddress) {
       try {
-        const meetings = await invoke('api_get_meetings') as Array<{ id: string, title: string }>;
+        const meetings = await invoke('api_get_meetings') as Array<{ id: string, title: string, created_at?: string }>;
         const transformedMeetings = meetings.map((meeting: any) => ({
           id: meeting.id,
-          title: meeting.title
+          title: meeting.title,
+          created_at: meeting.created_at
         }));
         setMeetings(transformedMeetings);
         Analytics.trackBackendConnection(true);
@@ -119,9 +162,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
       id: 'meetings',
       title: 'Møtenotater',
       type: 'folder' as const,
-      children: [
-        ...meetings.map(meeting => ({ id: meeting.id, title: meeting.title, type: 'file' as const }))
-      ]
+      children: groupMeetingsByDate(meetings)
     },
   ];
 

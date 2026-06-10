@@ -667,12 +667,22 @@ impl WhisperEngine {
                 Err(_) => continue,
             };
 
-            // Calculate confidence based on segment length and duration (simplified approach)
-            let segment_length = segment_text.len() as f32;
-            let segment_confidence = if segment_length > 0.0 {
-                (segment_length / 100.0).min(0.9) + 0.1 // 0.1 to 1.0 confidence based on text length
+            // Real confidence: mean token probability from the decoder.
+            // (Replaces the old text-length heuristic, which reported high
+            // confidence for any long segment regardless of audio quality.)
+            let n_tokens = state.full_n_tokens(i).unwrap_or(0);
+            let mut token_prob_sum = 0.0f32;
+            let mut token_count = 0u32;
+            for j in 0..n_tokens {
+                if let Ok(p) = state.full_get_token_prob(i, j) {
+                    token_prob_sum += p;
+                    token_count += 1;
+                }
+            }
+            let segment_confidence = if token_count > 0 {
+                token_prob_sum / token_count as f32
             } else {
-                0.1
+                0.5
             };
             total_confidence += segment_confidence;
             segment_count += 1;

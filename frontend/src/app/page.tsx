@@ -57,6 +57,14 @@ export default function Home() {
     }
   }, [recordingState.isRecording, isRecording, setIsMeetingActive]);
 
+  // Granola-style flow: when recording starts, jump to the notes view —
+  // you write keywords, the transcript runs in the background.
+  useEffect(() => {
+    if (recordingState.isRecording) {
+      setLiveTab('notater');
+    }
+  }, [recordingState.isRecording]);
+
   // Get handleRecordingStop function and setIsStopping (state comes from global context)
   const { handleRecordingStop, setIsStopping } = useRecordingStop(
     setIsRecordingState,
@@ -268,7 +276,7 @@ export default function Home() {
             />
           </div>
           <div className={liveTab === 'notater' ? 'flex flex-col flex-1 overflow-hidden' : 'hidden'}>
-            <LiveNotes meetingId={currentMeeting?.id ?? 'intro-call'} />
+            <LiveNotes meetingId={currentMeeting?.id ?? 'intro-call'} focusSignal={recordingState.isRecording} />
           </div>
         </div>
 

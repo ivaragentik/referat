@@ -24,10 +24,10 @@ export const ConfidenceIndicator: React.FC<ConfidenceIndicatorProps> = ({
 
   // Get descriptive label for accessibility
   const getConfidenceLabel = (conf: number): string => {
-    if (conf >= 0.8) return 'High confidence';
-    if (conf >= 0.7) return 'Good confidence';
-    if (conf >= 0.4) return 'Medium confidence';
-    return 'Low confidence';
+    if (conf >= 0.8) return 'Høy sikkerhet';
+    if (conf >= 0.7) return 'God sikkerhet';
+    if (conf >= 0.4) return 'Middels sikkerhet';
+    return 'Lav sikkerhet';
   };
 
   const confidencePercent = (confidence * 100).toFixed(0);
