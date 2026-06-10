@@ -622,12 +622,12 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
         <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
         <div>
           <h3 className="text-blue-700 font-medium">
-            {status === 'processing' ? 'Processing Transcript' : 'Generating Summary'}
+            {status === 'processing' ? 'Behandler transkripsjon' : 'Genererer sammendrag'}
           </h3>
           <p className="text-blue-600 text-sm">
-            {status === 'processing' 
-              ? 'Analyzing your transcript...' 
-              : 'Creating a detailed summary of your meeting...'}
+            {status === 'processing'
+              ? 'Analyserer transkripsjonen din…'
+              : 'Lager et detaljert sammendrag av møtet ditt…'}
           </p>
         </div>
       </div>
@@ -649,8 +649,8 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
   if (!hasContent && status === 'completed') {
     return (
       <div className="w-full p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
-        <p className="text-gray-600">No summary content available.</p>
-        <p className="text-gray-500 text-sm mt-1">Try generating a new summary.</p>
+        <p className="text-gray-600">Ingen sammendragsinnhold tilgjengelig.</p>
+        <p className="text-gray-500 text-sm mt-1">Prøv å generere et nytt sammendrag.</p>
       </div>
     );
   }
